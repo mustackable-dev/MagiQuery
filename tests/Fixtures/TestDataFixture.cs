@@ -8,7 +8,7 @@ using MagiQuery.Models;
 namespace MagiQueryTests.Fixtures;
 public sealed class TestDataFixture: IDisposable
 {
-    public static readonly DataProvider Provider = DataProvider.MongoDb;
+    public static readonly DataProvider Provider = DataProvider.Runtime;
     public IQueryable<Goblin> SampleData { get; }
     public IQueryable<Contract> Contracts { get; }
     public IQueryable<ContractDetails> ContractDetails { get; }

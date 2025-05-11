@@ -130,7 +130,7 @@ Additionally, `QueryRequest` has two optional properties - [`FilterExpression`](
 
 MagiQuery also offers a utility class named `QueryRequestPaged`, which inherits from `QueryRequest` and has two extra properties for paging support.
 
-The detailed structure of the two classes can be seen [here](https://github.com/mustackable-dev/MagiQuery/Models).
+The detailed structure of the two classes can be seen [here](https://github.com/mustackable-dev/MagiQuery/tree/main/src/MagiQuery/Models).
 
 Examples of `QueryRequest` payloads can be seen [here](#examples).
 
