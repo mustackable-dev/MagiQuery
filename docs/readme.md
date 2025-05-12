@@ -30,7 +30,7 @@
     * [Filters on Nested and Nullable Properties](#filters-on-nested-and-nullable-properties)
     * [Search on Multiple Properties](#search-on-multiple-properties)
     * [Single Sort](#single-sort)
-    * [Multiple Sort](#multiple-sort)
+    * [Multiple Sorts](#multiple-sorts)
   * [License](#license)
 <!-- TOC -->
 
@@ -113,16 +113,21 @@ The idea is simple - you write it once, and it should be able to handle any scen
 
     ... and you will get a `Goblin` collection that consist only of goblins, whose names start with `Wiz`, and who were born after October 1st, 1010.  
 
+
+We have provided a testing playground project [WebApiExample](https://github.com/mustackable-dev/MagiQuery/tree/main/example) in this repository, where you can experiment with MagiQuery and get a feel for how it works and what it can do for you.
+
+It is preloaded with test data and uses an in-memory SQLite database. It has a Swagger implementation loaded with several examples of `QueryRequest` payloads.
+
 ## Query Request
 
-The ```QueryRequest``` class configures the filtering and sorting parameters of the query on a given `IQueryable<TItem>`. It has two main components:
+The ```QueryRequest``` class configures the filtering and sorting parameters of a query on a given `IQueryable<TItem>`. It has two main components:
 
 - **Filters** - a collection of filters that will be applied to the `IQueryable<TItem>`. A filter is defined with:
   - the name of a **property** of the class `TItem`
   - a string representation of the **value** you want to filter with on the specified property
   - a comparison **operator** from the predefined [`FilterOperator`](#supported-operators) enum
 
-- **Sort** - a collection of sort instructions to be applied to `IQueryable<TItem>`. A sort is defined with:
+- **Sorts** - a collection of sort instructions to be applied to `IQueryable<TItem>`. A sort is defined with:
     - the name of a **property** of the class `TItem`
     - an optional boolean value for using **descending** order. If this property is omitted from the payload, MagiQuery automatically uses ascending order
 
@@ -189,7 +194,7 @@ Here is a table showing which properties, operators and features of MagiQuery ar
 | Name                                        | Source           | Properties                                                                                                                     | Operators                                          | Nullables         | Supports String  Comparison Override? |
 |---------------------------------------------|------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|-------------------|---------------------------------------|
 | `Microsoft .EntityFrameworkCore .SqlServer` | `MSSQL`          | All                                                                                                                            | All, except `Regex`                                | Full              | No                                    |
-| `Microsoft .EntityFrameworkCore .Sqlite`    | `SQLite`         | All, except `ulong`,  `DateTimeOffset`,  `TimeSpan`. Type  `decimal` is not  supported  for sorting                            | All                                                | Full              | No                                    |
+| `Microsoft .EntityFrameworkCore .Sqlite`    | `SQLite`         | All, except `ulong`,  `DateTimeOffset`  and `TimeSpan`.  Type  `decimal`  is not  supported  for sorting                       | All                                                | Full              | No                                    |
 | `Microsoft .EntityFrameworkCore .InMemory`  | `In-Memory DB`   | All                                                                                                                            | All                                                | Full              | No                                    |
 | `Npgsql .EntityFrameworkCore .PostgreSQL`   | `PostgreSQL`     | All, except `DateOnly`  and `TimeOnly`                                                                                         | All                                                | Full              | No                                    |
 | `Pomelo .EntityFrameworkCore .MySql`        | `MySQL, MariaDB` | All, except `DateOnly`  and `TimeOnly`                                                                                         | All                                                | Full              | No                                    |
@@ -384,7 +389,7 @@ Having provided this mapping, the FE can pass a payload like this:
         "property": "GoblinName"
     }
   ],
-  "sort": [
+  "sorts": [
     {
         "descending": true,
         "property": "SigningTime"
@@ -442,7 +447,7 @@ The `StringComparisonType` property allows you to specify the `StringComparison`
 
 ## Override CultureInfo and Exact Parse Format
 
-MagiQuery also offers the option to provide an override `CultureInfo` standard code and an exact parse format to ensure the string `value` you provide for a filter is parsed correctly by the .Net application.
+MagiQuery also offers the option to provide an override `CultureInfo` code and an exact parse format to ensure the string `value` you provide for a filter is parsed correctly by the .Net application.
 
 Here is how you can do this at filter or sort level:
 
@@ -539,7 +544,7 @@ If you have no other option but to use it, at least try to narrow down the amoun
 
 The following examples are available as query templates in the `WebApiExample` provided in this repository.
 
-The `WebApiExample` comes with preloaded test data, stored an in-memory SQLite database. It has a Swagger implementation with the payloads below listed as examples.
+The `WebApiExample` comes with preloaded test data, stored in an in-memory SQLite database. It has a Swagger implementation with the payloads below listed as examples.
 
 ### Single Filter
 
@@ -722,7 +727,7 @@ Here is an example of how you can sort entries by a property. The default order 
       "value": "e"
     }
   ],
-  "sort": [
+  "sorts": [
     {
       "property": "FavouriteLetter"
     }
@@ -730,7 +735,7 @@ Here is an example of how you can sort entries by a property. The default order 
 }
 ```
 
-### Multiple Sort
+### Multiple Sorts
 
 Here is an example of how you can sort entries by multiple properties. In this case, we are first sorting by date of birth in ascending order, and then by intelligence level in descending order.
 
@@ -743,7 +748,7 @@ Here is an example of how you can sort entries by multiple properties. In this c
       "value": "54001"
     }
   ],
-  "sort": [
+  "sorts": [
     {
       "property": "DateOfBirth"
     },

@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MagiQuery" Version="0.8.2" />
+        <PackageReference Include="MagiQuery" Version="0.8.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />

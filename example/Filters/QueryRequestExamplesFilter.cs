@@ -127,20 +127,20 @@ public class QueryRequestExamplesFilter : IOperationFilter
                                   " is ascending, unless specified otherwise with \"descending\":\"true\"",
                     Value = new OpenApiString("{\n  \"filters\": [\n    {\n      \"property\": \"Name\",\n      " +
                                               "\"operator\": \"Contains\",\n      \"value\": \"e\"\n    }\n  ],\n  " +
-                                              "\"sort\":[\n   {\n     \"property\":\"FavouriteLetter\"\n   }\n  ]\n}"
+                                              "\"sorts\":[\n   {\n     \"property\":\"FavouriteLetter\"\n   }\n  ]\n}"
                     ),
                 }
             },
             {
-                "MultipleSort", new()
+                "MultipleSorts", new()
                 {
-                    Summary = "Multiple Sort",
+                    Summary = "Multiple Sorts",
                     Description = "Here is an example of how you can sort entries by multiple properties. In this " +
                                   "case, we are first sorting by date of birth in ascending order, and then by " +
                                   "intelligence level in descending order.",
                     Value = new OpenApiString("{\n  \"filters\": [\n    {\n      \"property\": \"Salary\",\n      " +
                                               "\"operator\": \"GreaterThanOrEqual\",\n      \"value\": \"54001\"\n    }" +
-                                              "\n  ],\n  \"sort\":[\n   {\n     \"property\": \"DateOfBirth\"\n   }," +
+                                              "\n  ],\n  \"sorts\":[\n   {\n     \"property\": \"DateOfBirth\"\n   }," +
                                               "\n   {\n     \"property\": \"IntelligenceLevel\",\n     " +
                                               "\"descending\": true\n   }\n  ]\n}"
                     ),

@@ -53,7 +53,7 @@ public class SortTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort = [new()
+            Sorts = [new()
             {
                 Property = propertyName,
             }]
@@ -125,7 +125,7 @@ public class SortTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort = [new()
+            Sorts = [new()
             {
                 Property = propertyName,
                 Descending = true
@@ -154,7 +154,7 @@ public class SortTests(TestDataFixture fixture)
     }
     
     [Fact]
-    public void ApplyQuery_MultipleSortAscending_ShouldSortList()
+    public void ApplyQuery_MultipleSortsAscending_ShouldSortList()
     {
         // Arrange
         
@@ -166,7 +166,7 @@ public class SortTests(TestDataFixture fixture)
                 Value = "1234567890",
                 Operator = FilterOperator.Equals
             }],
-            Sort = [new()
+            Sorts = [new()
             {
                 Property = "DateOfBirth",
             },new()
@@ -185,7 +185,7 @@ public class SortTests(TestDataFixture fixture)
     }
     
     [Fact]
-    public void ApplyQuery_MultipleSortDescending_ShouldSortList()
+    public void ApplyQuery_MultipleSortsDescending_ShouldSortList()
     {
         // Arrange
         
@@ -197,7 +197,7 @@ public class SortTests(TestDataFixture fixture)
                 Value = "1234567890",
                 Operator = FilterOperator.Equals
             }],
-            Sort = [new()
+            Sorts = [new()
             {
                 Property = "Age",
                 Descending = true
@@ -218,7 +218,7 @@ public class SortTests(TestDataFixture fixture)
     }
     
     [Fact]
-    public void ApplyQuery_MultipleSortMixedOrder_ShouldSortList()
+    public void ApplyQuery_MultipleSortsMixedOrder_ShouldSortList()
     {
         // Arrange
         
@@ -230,7 +230,7 @@ public class SortTests(TestDataFixture fixture)
                 Value = "1234567890",
                 Operator = FilterOperator.Equals
             }],
-            Sort = [new()
+            Sorts = [new()
             {
                 Property = "DateOfBirth",
                 Descending = true

@@ -63,7 +63,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort =
+            Sorts =
             [
                 new()
                 {
@@ -98,7 +98,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort =
+            Sorts =
             [
                 new()
                 {
@@ -136,7 +136,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort =
+            Sorts =
             [
                 new()
                 {
@@ -231,7 +231,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
                     Operator = FilterOperator.IsNotEmpty
                 }
             ],
-            Sort = [
+            Sorts = [
                 new()
                 {
                     Property = "GoblinId",
@@ -345,7 +345,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
         
         QueryRequest request = new()
         {
-            Sort =
+            Sorts =
             [
                 new()
                 {

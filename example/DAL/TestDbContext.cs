@@ -50,7 +50,7 @@ public sealed class TestDbContext : DbContext
 
     }
 
-    // SQLite in memory databases are disposed after a certain period if there are no active connections to them,
+    // SQLite in-memory databases are disposed after a certain period, if there are no active connections to them,
     // so we are starting a little worker to keep the database alive.
     private async Task KeepSqliteDatabaseAlive(CancellationToken cancellationToken = default)
     {

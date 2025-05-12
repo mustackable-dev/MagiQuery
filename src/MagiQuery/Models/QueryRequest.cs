@@ -41,11 +41,11 @@ public class QueryRequest
     /// <summary>
     /// This is the collection of <see cref="SortDefinition"/> to be used during the query build process.
     /// </summary>
-    public IEnumerable<SortDefinition>? Sort { get; set; }
+    public IEnumerable<SortDefinition>? Sorts { get; set; }
     
     /// <summary>
     /// With this optional parameter, you can specify the <see cref="System.Globalization.CultureInfo"/> code to be
-    /// used during the parsing of all entries in <see cref="Filters"/> and <see cref="Sort"/>.
+    /// used during the parsing of all entries in <see cref="Filters"/> and <see cref="Sorts"/>.
     /// This property provides a request-wide default value for <see cref="BaseDefinition.OverrideCulture"/>.
     /// You can still override it on a <see cref="BaseDefinition"/> level for a single <see cref="FilterDefinition"/>
     /// or <see cref="SortDefinition"/>. <see cref="System.Globalization.CultureInfo"/> code can be constructed as

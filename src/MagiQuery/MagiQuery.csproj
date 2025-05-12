@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.8.2</Version>
+        <Version>0.8.3</Version>
         <Authors>Vasil Kotsev (mustackable.dev)</Authors>
         <Description>Plug-and-play generic filtering and sorting on EF entities and any other IQueryables. Supports nested properties, nullables and the full range of primitives. Works out of the box on MSSQL, PostgreSQL, MySql, MariaDB, SQLite and even MongoDb.</Description>
         <Copyright>Copyright (c) Mustackable 2025</Copyright>

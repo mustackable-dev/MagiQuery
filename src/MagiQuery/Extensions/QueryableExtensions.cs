@@ -20,7 +20,7 @@ internal static partial class InternalExtensions
         ITranslator translator = TranslatorFactory.CreateTranslator(options.ProviderType);
         
         queryable = queryable.ApplyFilters(request, options, translator)
-                             .ApplySort(request, options, translator);
+                             .ApplySorts(request, options, translator);
         
         return queryable;
     }
@@ -52,19 +52,19 @@ internal static partial class InternalExtensions
         return source;
     }
 
-    private static IQueryable<T> ApplySort<T>(
+    private static IQueryable<T> ApplySorts<T>(
         this IQueryable<T> source,
         QueryRequest request,
         QueryBuildOptions<T> options,
         ITranslator translator)
     {
-        if (request.Sort is null || !request.Sort.Any()) return source;
+        if (request.Sorts is null || !request.Sorts.Any()) return source;
         
         bool firstOrderDone = false;
         IOrderedQueryable<T> ordered = null!;
         
         StringComparer stringComparer = options.StringComparisonType.ToStringComparer();
-        foreach (SortDefinition sort in request.Sort)
+        foreach (SortDefinition sort in request.Sorts)
         {
             sort.OverrideCulture ??= request.OverrideCulture;
 
@@ -135,8 +135,8 @@ internal static partial class InternalExtensions
             mappedProperties,
             options.HideMappedProperties);
             
-        if(request.Sort is not null && request.Sort.Any()) MapBaseDefinitionsProperties(
-            request.Sort,
+        if(request.Sorts is not null && request.Sorts.Any()) MapBaseDefinitionsProperties(
+            request.Sorts,
             mappingDictionary,
             mappedProperties,
             options.HideMappedProperties);
@@ -185,9 +185,9 @@ internal static partial class InternalExtensions
                 throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, match.Property);
         }
 
-        if (request.Sort is not null)
+        if (request.Sorts is not null)
         {
-            SortDefinition? match = request.Sort.FirstOrDefault(x => includedScreening ?
+            SortDefinition? match = request.Sorts.FirstOrDefault(x => includedScreening ?
                 !propertiesChecklist.Contains(x.InternalProperty):
                 propertiesChecklist.Contains(x.InternalProperty));
             if (match is not null)

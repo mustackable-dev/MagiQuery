@@ -39,7 +39,7 @@ public enum QueryBuildExceptionType
     InvalidOperator,
     /// <summary>
     /// Thrown when MagiQuery failed to generate an <see cref="System.Linq.Expressions.Expression"/> for a
-    /// <see cref="SortDefinition"/> in <see cref="QueryRequest.Sort"/>
+    /// <see cref="SortDefinition"/> in <see cref="QueryRequest.Sorts"/>
     /// </summary>
     SortExpressionGenerationError
 }
