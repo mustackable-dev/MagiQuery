@@ -53,7 +53,7 @@ public class QueryRequestExamplesFilter : IOperationFilter
                 "MultipleFiltersComplex", new()
                 {
                     Summary = "Multiple Filters with Complex Logic",
-                    Description = "Here is an advanced scenario in which we not only have multiple filters, but" +
+                    Description = "Here is an advanced scenario in which we not only have multiple filters, but " +
                                   "also a complex logic for including entries. Specifically, we would like to get " +
                                   "goblins, whose name starts with \"B\", and are over 30-years-old, OR goblins, who " +
                                   "were born before July 11th 1996, and do not have bitter taste.",
