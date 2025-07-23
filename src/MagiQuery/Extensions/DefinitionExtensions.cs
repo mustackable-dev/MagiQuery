@@ -211,7 +211,7 @@ internal static partial class InternalExtensions
     }
 
     private static bool IsInherentlyNullable(this Type type)
-        => type.Namespace != "System" && !type.IsEnum;
+        => !(type.IsValueType || type == typeof(string));
 
     private static void CheckOperatorValidity(FilterOperator filterOperator, Type propertyType)
     {
