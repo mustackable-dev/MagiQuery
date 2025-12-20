@@ -10,16 +10,16 @@ public class QueryBuildOptions<T>
 {
     /// <summary>
     /// Here you can specify which properties of the IQueryable's base class you would like to specifically exclude
-    /// from the query. If defined, <see cref="QueryBuildOptions{T}.IncludedProperties"/> takes precedence over this
+    /// from the query. If defined, <see cref="QueryBuildOptions&lt;T&gt;.IncludedProperties"/> takes precedence over this
     /// property
     /// </summary>
-    public Expression<Func<T, object?>>[]? ExcludedProperties { get; init; }
-    
+    public Func<PropertySelectors<T>, PropertySelectors<T>>? ExcludedProperties { get; init; }
+
     /// <summary>
     /// Here you can specify all properties of the IQueryable's base class that should be included in your query.
-    /// Takes precedence over <see cref="QueryBuildOptions{T}.ExcludedProperties"/>
+    /// Takes precedence over <see cref="QueryBuildOptions&lt;T&gt;.ExcludedProperties"/>
     /// </summary>
-    public Expression<Func<T, object?>>[]? IncludedProperties { get; init; }
+    public Func<PropertySelectors<T>, PropertySelectors<T>>? IncludedProperties { get; init; }
     
     /// <summary>
     /// Here you can specify an alias mapping for the IQueryable's base class' properties. Very useful, if you would
@@ -31,7 +31,7 @@ public class QueryBuildOptions<T>
     
     /// <summary>
     /// Default is <see langword="true"/>. Allows you to control the direct access to properties, for which an alias
-    /// has been defined in <see cref="QueryBuildOptions{T}.PropertyMapping"/>. When <see langword="true"/>, a query
+    /// has been defined in <see cref="QueryBuildOptions&lt;T&gt;.PropertyMapping"/>. When <see langword="true"/>, a query
     /// can only access a property via its alias (if one has been defined)
     /// </summary>
     public bool HideMappedProperties { get; init; } = true;

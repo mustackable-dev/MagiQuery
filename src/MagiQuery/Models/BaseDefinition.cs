@@ -8,7 +8,7 @@ public class BaseDefinition
     /// <summary>
     /// The name of the property in your base class that you would like to use in your <see cref="FilterDefinition"/>
     /// or <see cref="SortDefinition"/>. If you would like to access a nested property, you can use "." to go down a
-    /// level. If <see cref="QueryBuildOptions{T}.PropertyMapping"/> has been defined, you can use the alias in the map
+    /// level. If <see cref="QueryBuildOptions&lt;T&gt;.PropertyMapping"/> has been defined, you can use the alias in the map
     /// to refer to the property
     /// </summary>
     public required string Property { get; set; }

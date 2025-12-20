@@ -323,10 +323,9 @@ For example, here is how you can exclude the properties `Name` and `DateOfBirth`
 ```csharp
 QueryBuildOptions<Goblin> options = new()
 {
-    ExcludedProperties = [
-        x=>x.Name,
-        x=>x.DateOfBirth
-    ]
+    ExcludedProperties = x => x
+        .SelectProperty(y => y.Name)
+        .SelectProperty(y => y.DateOfBirth)
 };
 ```
 
@@ -343,11 +342,10 @@ For example, here is how you can force MagiQuery to only allow filtering and sor
 ```csharp
 QueryBuildOptions<Goblin> options = new()
 {
-    IncludedProperties = [
-        x=>x.Id,
-        x=>x.ExperiencePoints,
-        x=>x.Age
-    ]
+    IncludedProperties = x => x
+            .SelectProperty(y => y.Id)
+            .SelectProperty(y => y.ExperiencePoints)
+            .SelectProperty(y => y.Age)
 };
 ```
 

@@ -10,7 +10,7 @@ namespace MagiQuery.Extensions;
 public static class PublicExtensions
 {
     /// <summary>
-    /// Applies a <see cref="QueryRequest"/> to a given IQueryable with standard <see cref="QueryBuildOptions{T}"/>.
+    /// Applies a <see cref="QueryRequest"/> to a given IQueryable with standard <see cref="QueryBuildOptions&lt;T&gt;"/>.
     /// Note that this method only adds the requested filtering and sorting to your IQueryable, it does not generate
     /// a new IEnumerable until you decide to do so. Useful for cases where you need to apply some additional
     /// conditions to your IQueryable before actually querying the data.
@@ -22,7 +22,7 @@ public static class PublicExtensions
         => source.BuildQuery(request, new());
     
     /// <summary>
-    /// Applies a <see cref="QueryRequest"/> to a given IQueryable with an instance of <see cref="QueryBuildOptions{T}"/>.
+    /// Applies a <see cref="QueryRequest"/> to a given IQueryable with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/>.
     /// Note that this method only adds the requested filtering and sorting to your IQueryable, it does not generate a
     /// new IEnumerable until you decide to do so. Useful for cases where you need to apply some additional conditions
     /// to your IQueryable before actually querying the data.
@@ -38,7 +38,7 @@ public static class PublicExtensions
         => source.BuildQuery(request, buildOptions);
     
     /// <summary>
-    /// A utility extension that runs ApplyQuery with standard <see cref="QueryBuildOptions{T}"/> on a given IQueryable,
+    /// A utility extension that runs ApplyQuery with standard <see cref="QueryBuildOptions&lt;T&gt;"/> on a given IQueryable,
     /// executes the query and binds the result to a paged response ready to be served back to the client of an
     /// ASP.NET WebAPI. Takes in a <see cref="QueryRequestPaged"/>, which is a derived class of
     /// <see cref="QueryRequest"/> that takes in page size and 1-based page indexing.
@@ -51,7 +51,7 @@ public static class PublicExtensions
         => new(request, source.BuildQuery(request, new()));
     
     /// <summary>
-    /// A utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions{T}"/> on a given
+    /// A utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/> on a given
     /// IQueryable, executes the query and binds the result to a paged response ready to be served back to the client
     /// of an ASP.NET WebAPI. Takes in a <see cref="QueryRequestPaged"/>, which is a derived class of
     /// <see cref="QueryRequest"/> that takes in page size and 1-based page indexing.
