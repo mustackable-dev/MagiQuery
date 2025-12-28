@@ -168,13 +168,13 @@ internal static partial class InternalExtensions
 
     private static void ApplyPropertyScreening<T>(this QueryRequest request, QueryBuildOptions<T> options)
     {
-        bool includedScreening = options.IncludedProperties?.Any() ?? false;
-        
+        PropertySelectors<T>? includedSelectors = options.IncludedProperties?.Invoke(new());
+        bool includedScreening = includedSelectors?.Selectors.Any() ?? false;
         if (!includedScreening && options.ExcludedProperties is null) return;
         
         IEnumerable<string> propertiesChecklist = includedScreening ?
-            options.IncludedProperties!.Select(x =>x.ParsePropertyName()):
-            options.ExcludedProperties!.Select(x =>x.ParsePropertyName());
+            includedSelectors!.Selectors.Select(x =>x.ParsePropertyName()):
+            options.ExcludedProperties!.Invoke(new()).Selectors.Select(x =>x.ParsePropertyName());
             
         if (request.Filters is not null)
         {
@@ -195,12 +195,15 @@ internal static partial class InternalExtensions
         }
     }
 
-    private static string ParsePropertyName<T>(this Expression<Func<T, object?>> expression)
+    private static string ParsePropertyName(this Expression expression)
     {
-        string rawExpression = expression.Body is UnaryExpression { Operand: MemberExpression propertyExpression } ? 
-            propertyExpression.ToString():
-            expression.ToString();
-        
+        string rawExpression = expression is LambdaExpression
+        {
+            Body: UnaryExpression
+            {
+                Operand: MemberExpression propertyExpression
+            }
+        } ? propertyExpression.ToString(): expression.ToString();
         return rawExpression[(rawExpression.IndexOf('.') + 1)..];
     }
 

@@ -109,7 +109,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
 
         QueryBuildOptions<Goblin> options = new()
         {
-            ExcludedProperties = [x=>x.Name]
+            ExcludedProperties = x=>x.SelectProperty(y => y.Name)
         };
         
         // Act
@@ -147,7 +147,7 @@ public class BuildOptionsTests(TestDataFixture fixture)
 
         QueryBuildOptions<Goblin> options = new()
         {
-            IncludedProperties = [x=>x.Id]
+            IncludedProperties = x=>x.SelectProperty(y => y.Id)
         };
         
         // Act
