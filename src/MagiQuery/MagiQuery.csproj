@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>1.0.0</Version>
+        <Version>1.0.0.1</Version>
         <Authors>Vasil Kotsev (mustackable.dev)</Authors>
         <Description>Plug-and-play generic filtering and sorting on EF entities and any other IQueryables. Supports nested properties, nullables and the full range of primitives. Works out of the box on MSSQL, PostgreSQL, MySql, MariaDB, SQLite and even MongoDb.</Description>
-        <Copyright>Copyright (c) Mustackable 2025</Copyright>
+        <Copyright>Copyright (c) Mustackable 2026</Copyright>
         <PackageProjectUrl>https://github.com/mustackable-dev/MagiQuery</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -27,7 +27,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[9.0.4, 10.0.0)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
