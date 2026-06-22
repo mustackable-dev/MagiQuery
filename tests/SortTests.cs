@@ -69,7 +69,6 @@ public class SortTests(TestDataFixture fixture)
             expectedIdCaseInsensitive != -1 &&
             Array.Exists([
                 DataProvider.SqlServer,
-                DataProvider.PostgreSql,
                 DataProvider.MySqlPomelo,
                 DataProvider.MySql
             ], x=>x==TestDataFixture.Provider);
@@ -95,6 +94,7 @@ public class SortTests(TestDataFixture fixture)
             Assert.True(query.ElementAt(0).Id == (!caseInsensitiveCheck ? expectedId : expectedIdCaseInsensitive));
             return;
         }
+        
         Assert.True(query.First().Id == (!caseInsensitiveCheck ? expectedId : expectedIdCaseInsensitive));
     }
     
