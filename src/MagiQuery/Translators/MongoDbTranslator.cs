@@ -52,37 +52,37 @@ internal class MongoDbTranslator: BaseTranslator {
         {
             member = T switch
             {
-                var t when t == typeof(DateTimeOffset) =>
+                _ when T == typeof(DateTimeOffset) =>
                     Expression.Coalesce(member, Expression.Constant(DateTimeOffset.MinValue)),
-                var t when t == typeof(DateTime) =>
+                _ when T == typeof(DateTime) =>
                     Expression.Coalesce(member, Expression.Constant(DateTime.MinValue)),
-                var t when t == typeof(DateOnly) =>
+                _ when T == typeof(DateOnly) =>
                     Expression.Coalesce(member, Expression.Constant(DateOnly.MinValue)),
-                var t when t == typeof(TimeOnly) =>
+                _ when T == typeof(TimeOnly) =>
                     Expression.Coalesce(member, Expression.Constant(TimeOnly.MinValue)),
-                var t when t == typeof(TimeSpan) =>
+                _ when T == typeof(TimeSpan) =>
                     Expression.Coalesce(member, Expression.Constant(TimeSpan.MinValue)),
-                var t when t == typeof(char) =>
+                _ when T == typeof(char) =>
                     Expression.Coalesce(member, Expression.Constant('\0')),
-                var t when t == typeof(sbyte) =>
+                _ when T == typeof(sbyte) =>
                     Expression.Coalesce(member, Expression.Constant(sbyte.MinValue)),
-                var t when t == typeof(byte) =>
+                _ when T == typeof(byte) =>
                     Expression.Coalesce(member, Expression.Constant(byte.MinValue)),
-                var t when t == typeof(short) =>
+                _ when T == typeof(short) =>
                     Expression.Coalesce(member, Expression.Constant(short.MinValue)),
-                var t when t == typeof(ushort) =>
+                _ when T == typeof(ushort) =>
                     Expression.Coalesce(member, Expression.Constant(ushort.MinValue)),
-                var t when t == typeof(uint) =>
+                _ when T == typeof(uint) =>
                     Expression.Coalesce(member, Expression.Constant(uint.MinValue)),
-                var t when t == typeof(long) =>
+                _ when T == typeof(long) =>
                     Expression.Coalesce(member, Expression.Constant(long.MinValue)),
-                var t when t == typeof(ulong) =>
+                _ when T == typeof(ulong) =>
                     Expression.Coalesce(member, Expression.Constant(ulong.MinValue)),
-                var t when t == typeof(decimal) =>
+                _ when T == typeof(decimal) =>
                     Expression.Coalesce(member, Expression.Constant(decimal.MinValue)),
-                var t when t == typeof(double) =>
+                _ when T == typeof(double) =>
                     Expression.Coalesce(member, Expression.Constant(double.MinValue)),
-                var t when t == typeof(float) =>
+                _ when T == typeof(float) =>
                     Expression.Coalesce(member, Expression.Constant(float.MinValue)),
                 _ => 
                     Expression.Call(member, "GetValueOrDefault", [])

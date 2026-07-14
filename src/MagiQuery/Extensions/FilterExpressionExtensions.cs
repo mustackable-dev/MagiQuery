@@ -7,17 +7,20 @@ internal partial class InternalExtensions
 {
     private static Expression ParseFilterExpression(this string? pattern, List<Expression> expressions)
     {
-        if(expressions.Count == 1) return expressions[0];
+        if(expressions.Count == 1)
+            return expressions[0];
 
         if (string.IsNullOrWhiteSpace(pattern) || Array.Exists(["&&", "||"], x=>x == pattern))
         {
             Expression mergedExpression = expressions[0];
+            
             for (int i = 1; i < expressions.Count; i++)
             {
                 mergedExpression = pattern == "||" ? 
                     Expression.OrElse(mergedExpression, expressions[i]) :
                     Expression.AndAlso(mergedExpression, expressions[i]);
             }
+            
             return mergedExpression;
         }
 
@@ -122,14 +125,17 @@ internal partial class InternalExtensions
 
     private static Expression JoinNodes(ref Expression newNode, ref Expression? oldNode, ref bool? andOperator, ref bool notOperator)
     {
-        if(notOperator) newNode = Expression.Not(newNode);
+        if (notOperator)
+            newNode = Expression.Not(newNode);
+        
         notOperator = false;
         
         Expression result = newNode;
+        
         if (oldNode is not null && andOperator is not null)
-        {
-            result = andOperator.Value ? Expression.AndAlso(oldNode, newNode) : Expression.OrElse(oldNode, newNode);
-        }
+            result = andOperator.Value ?
+                Expression.AndAlso(oldNode, newNode) :
+                Expression.OrElse(oldNode, newNode);
         
         return result;
     }

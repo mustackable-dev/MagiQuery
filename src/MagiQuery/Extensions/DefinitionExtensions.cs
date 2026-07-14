@@ -177,34 +177,34 @@ internal static partial class InternalExtensions
 
         return memberType switch
         {
-            var type when type == typeof(string) => Expression.Constant(definition.Value, memberType),
-            var type when type == typeof(char) => definition.Value.ToCharConstant(isNullable),
-            var type when type == typeof(sbyte) => definition.Value.ToSByteConstant(culture, isNullable),
-            var type when type == typeof(short) => definition.Value.ToShortConstant(culture, isNullable),
-            var type when type == typeof(ushort) => definition.Value.ToUShortConstant(culture, isNullable),
-            var type when type == typeof(byte) => definition.Value.ToByteConstant(culture, isNullable),
-            var type when type == typeof(int) => definition.Value.ToInt32Constant(culture, isNullable),
-            var type when type == typeof(uint) => definition.Value.ToUInt32Constant(culture, isNullable),
-            var type when type == typeof(long) => definition.Value.ToInt64Constant(culture, isNullable),
-            var type when type == typeof(ulong) => definition.Value.ToUInt64Constant(culture, isNullable),
-            var type when type == typeof(nint) => definition.Value.ToIntPtrConstant(culture, isNullable),
-            var type when type == typeof(float) => definition.Value.ToFloatConstant(culture, isNullable),
-            var type when type == typeof(double) => definition.Value.ToDoubleConstant(culture, isNullable),
-            var type when type == typeof(decimal) => definition.Value.ToDecimalConstant(culture, isNullable),
-            var type when type == typeof(nuint) => definition.Value.ToUIntPtrConstant(culture, isNullable),
-            var type when type == typeof(bool) => definition.Value.ToBoolConstant(isNullable),
+            _ when memberType == typeof(string) => Expression.Constant(definition.Value, memberType),
+            _ when memberType == typeof(char) => definition.Value.ToCharConstant(isNullable),
+            _ when memberType == typeof(sbyte) => definition.Value.ToSByteConstant(culture, isNullable),
+            _ when memberType == typeof(short) => definition.Value.ToShortConstant(culture, isNullable),
+            _ when memberType == typeof(ushort) => definition.Value.ToUShortConstant(culture, isNullable),
+            _ when memberType == typeof(byte) => definition.Value.ToByteConstant(culture, isNullable),
+            _ when memberType == typeof(int) => definition.Value.ToInt32Constant(culture, isNullable),
+            _ when memberType == typeof(uint) => definition.Value.ToUInt32Constant(culture, isNullable),
+            _ when memberType == typeof(long) => definition.Value.ToInt64Constant(culture, isNullable),
+            _ when memberType == typeof(ulong) => definition.Value.ToUInt64Constant(culture, isNullable),
+            _ when memberType == typeof(nint) => definition.Value.ToIntPtrConstant(culture, isNullable),
+            _ when memberType == typeof(float) => definition.Value.ToFloatConstant(culture, isNullable),
+            _ when memberType == typeof(double) => definition.Value.ToDoubleConstant(culture, isNullable),
+            _ when memberType == typeof(decimal) => definition.Value.ToDecimalConstant(culture, isNullable),
+            _ when memberType == typeof(nuint) => definition.Value.ToUIntPtrConstant(culture, isNullable),
+            _ when memberType == typeof(bool) => definition.Value.ToBoolConstant(isNullable),
             { IsEnum: true } => definition.Value.ToEnumConstant(memberType, isNullable),
-            var type when type == typeof(DateTime) => definition.Value.ToDateTimeConstant(culture,
+            _ when memberType == typeof(DateTime) => definition.Value.ToDateTimeConstant(culture,
                 definition.ExactParseFormat, overrideDateTimeKind, isNullable),
-            var type when type == typeof(DateTimeOffset) =>
+            _ when memberType == typeof(DateTimeOffset) =>
                 definition.Value.ToDateTimeOffsetConstant(culture, definition.ExactParseFormat, isNullable),
-            var type when type == typeof(DateOnly) =>
+            _ when memberType == typeof(DateOnly) =>
                 definition.Value.ToDateOnlyConstant(culture, definition.ExactParseFormat, isNullable),
-            var type when type == typeof(TimeSpan) =>
+            _ when memberType == typeof(TimeSpan) =>
                 definition.Value.ToTimeSpanConstant(culture, definition.ExactParseFormat, isNullable),
-            var type when type == typeof(TimeOnly) =>
+            _ when memberType == typeof(TimeOnly) =>
                 definition.Value.ToTimeOnlyConstant(culture, definition.ExactParseFormat, isNullable),
-            var type when type.IsInherentlyNullable() =>
+            _ when memberType.IsInherentlyNullable() =>
                 Expression.Constant(null, memberType),
             _ => null
         };
@@ -265,8 +265,8 @@ internal static partial class InternalExtensions
 
         return memberType switch
         {
-            var type when type == typeof(string) => member,
-            var type when
+            _ when memberType == typeof(string) => member,
+            _ when
                 Array.Exists(
                     [
                         typeof(char), typeof(bool), typeof(sbyte), typeof(short), typeof(ushort), typeof(byte),
@@ -274,10 +274,10 @@ internal static partial class InternalExtensions
                         typeof(double), typeof(decimal), typeof(nuint), typeof(DateTime), typeof(DateTimeOffset),
                         typeof(DateOnly), typeof(TimeSpan), typeof(TimeOnly)
                     
-                    ], x=>x==type)
+                    ], x=>x== memberType)
                 => translator.ForceMemberToString(
                     member,
-                    type,
+                    memberType,
                     isNullable,
                     isParentNullable,
                     culture,
