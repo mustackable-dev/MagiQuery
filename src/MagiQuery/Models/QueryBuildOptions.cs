@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using MagiQuery.Utilities;
 
 namespace MagiQuery.Models;
 
@@ -49,8 +50,7 @@ public class QueryBuildOptions<T>
     /// build. <see href="https://learn.microsoft.com/en-us/dotnet/api/system.reflection.bindingflags">Here</see> you
     /// can read more about <see cref="BindingFlags"/>
     /// </summary>
-    public BindingFlags PropertyBindingFlags { get; init; } =
-        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance;
+    public BindingFlags PropertyBindingFlags { get; init; } = Constants.DefaultPropertyBindingFlags;
     
     
     /// <summary>

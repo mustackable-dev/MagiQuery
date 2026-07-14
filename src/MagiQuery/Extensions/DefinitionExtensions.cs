@@ -1,8 +1,11 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using MagiQuery.Cache;
 using MagiQuery.Contracts;
 using MagiQuery.Models;
+using MagiQuery.Utilities;
 
 namespace MagiQuery.Extensions;
 
@@ -101,12 +104,16 @@ internal static partial class InternalExtensions
         Expression memberExpression = parameterExpression;
         bool isNullable = false;
         bool isParentNullable = false;
+
+        string cacheKey = type.FullName?.ToLower() ?? "";
         
         for (int i=0; i<properties.Length; i++)
         {
             string property = properties[i].ToLower();
-
-            PropertyTypeComponents? typeComponents = GetPropertyTypeComponents(property, type, bindingFlags);
+            cacheKey = string.Concat(cacheKey, '.', property);
+            
+            if(!EntityStructureCache.StructureCache.TryGetValue(cacheKey, out PropertyTypeComponents? typeComponents))
+                typeComponents = GetPropertyTypeComponents(property, type, bindingFlags);
             
             if(typeComponents is null)
                 throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, definition.InternalProperty);
@@ -227,9 +234,6 @@ internal static partial class InternalExtensions
         };
     }
 
-    private static bool IsInherentlyNullable(this Type type)
-        => !(type.IsValueType || type == typeof(string));
-
     private static void CheckOperatorValidity(FilterOperator filterOperator, Type propertyType)
     {
         //Quantitative comparisons
@@ -312,20 +316,4 @@ internal static partial class InternalExtensions
             _ => throw new QueryBuildException(QueryBuildExceptionType.UnsupportedStringComparisonType, memberType.ToString())
         };
     }
-
-    internal record PropertyComponents
-    {
-        internal required Type PropertyType { get; set; }
-        internal bool IsNullable { get; set; }
-    }
-    internal record PropertyTypeComponents : PropertyComponents
-    {
-        internal required PropertyInfo PropertyInfo { get; init; }
-    }
-    internal record PropertyExpressionComponents: PropertyComponents
-    {
-        internal required Expression PropertyExpression { get; init; }
-        internal Expression? NullHandlingExpression { get; init; }
-    }
-        
 }
