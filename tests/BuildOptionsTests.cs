@@ -1,377 +1,53 @@
-using System.Linq.Expressions;
-using System.Reflection;
+using MagiQueryTests.BaseTests;
 using MagiQueryTests.Fixtures;
-using MagiQueryTests.Entities;
-using MagiQuery.Models;
-using MagiQuery.Extensions;
+using MagiQueryTests.Fixtures.Implementations;
 
-namespace MagiQueryTests;
+namespace BuildOptions;
 
-[Collection("SampleDataCollection")]
-public class BuildOptionsTests(TestDataFixture fixture)
+[Collection("RuntimeDataCollection")]
+public class Runtime(RuntimeDataFixture fixture) : BuildOptionsTests
 {
-    [Theory]
-    [InlineData(StringComparison.Ordinal, 0)]
-    [InlineData(StringComparison.OrdinalIgnoreCase, 1)]
-    public void ApplyQuery_StringComparisonTypeOption_ShouldReturnEntryCountOnFilter(
-        StringComparison comparisonType,
-        int expectedCount)
-    {
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Filters =
-            [
-                new()
-                {
-                    Property = "Name",
-                    Value = "blee",
-                    Operator = FilterOperator.Contains,
-                }
-            ]
-        };
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-        QueryBuildOptions<Goblin> options = new()
-        {
-            StringComparisonType = comparisonType,
-        };
-        
-        // Act
-        
-        IQueryable<Goblin> query = fixture.SampleData.ApplyQuery(request, options);
-        
-        // Assert
-        
-        Assert.SkipWhen(TestDataFixture.Provider != DataProvider.Runtime,
-            "Order by clauses with StringComparer are not available in SQL EF Core");
-        
-        Assert.True(query.Count() == expectedCount);
-    }
-    
-    [Theory]
-    [InlineData(StringComparison.Ordinal, "Name", false, 3)]
-    [InlineData(StringComparison.OrdinalIgnoreCase, "Name", false, 10)]
-    [InlineData(StringComparison.OrdinalIgnoreCase, "Id", true, 17)]
-    public void ApplyQuery_StringComparisonTypeOption_ShouldReturnEntryWithIdAtIndexOnSort(
-        StringComparison comparisonType,
-        string propertyName,
-        bool descending,
-        int expectedId)
-    {
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Sorts =
-            [
-                new()
-                {
-                    Property = propertyName,
-                    Descending = descending
-                }
-            ]
-        };
+[Collection("InMemoryDataCollection")]
+public class InMemory(InMemoryDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-        QueryBuildOptions<Goblin> options = new()
-        {
-            StringComparisonType = comparisonType,
-        };
-        
-        // Act
-        
-        IQueryable<Goblin> query = fixture.SampleData.ApplyQuery(request, options);
-        
-        // Assert
-        
-        Assert.SkipWhen(TestDataFixture.Provider != DataProvider.Runtime,
-            "Order by clauses with StringComparer are not available in SQL EF Core");
-        
-        Assert.True(query.AsEnumerable().ElementAt(13).Id == expectedId);
-    }
+[Collection("SqliteDataCollection")]
+public class Sqlite(SqliteDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-    [Fact]
-    public void ApplyQuery_ExcludedPropertyOption_ShouldThrowOnExcludedProperty()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Sorts =
-            [
-                new()
-                {
-                    Property = "Name",
-                }
-            ]
-        };
+[Collection("SqlServerDataCollection")]
+public class SqlServer(SqlServerDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-        QueryBuildOptions<Goblin> options = new()
-        {
-            ExcludedProperties = x=>x.SelectProperty(y => y.Name)
-        };
-        
-        // Act
+[Collection("PostgreSqlDataCollection")]
+public class PostgreSql(PostgreSqlDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-        try
-        {
-            fixture.SampleData.ApplyQuery(request, options);
-        }
-        catch (QueryBuildException ex)
-        {
-            //Assert
-            Assert.True(ex.ExceptionType == QueryBuildExceptionType.MissingProperty);
-            return;
-        }
-        
-        Assert.Fail();
-    }
+[Collection("MySqlDataCollection")]
+public class MySql(MySqlDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-    [Fact]
-    public void ApplyQuery_IncludedPropertyOption_ShouldThrowOnNotIncludedProperty()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Sorts =
-            [
-                new()
-                {
-                    Property = "Name",
-                }
-            ]
-        };
+[Collection("MySqlPomeloDataCollection")]
+public class MySqlPomelo(MySqlPomeloDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
+}
 
-        QueryBuildOptions<Goblin> options = new()
-        {
-            IncludedProperties = x=>x.SelectProperty(y => y.Id)
-        };
-        
-        // Act
-
-        try
-        {
-            fixture.SampleData.ApplyQuery(request, options);
-        }
-        catch (QueryBuildException ex)
-        {
-            //Assert
-            Assert.True(ex.ExceptionType == QueryBuildExceptionType.MissingProperty);
-            return;
-        }
-        
-        Assert.Fail();
-    }
-
-    [Theory]
-    [InlineData(DateTimeKind.Utc)]
-    [InlineData(DateTimeKind.Unspecified)]
-    public void ApplyQuery_OverrideDateTimeKindOption_ShouldReturnCountOnFilter(DateTimeKind? dateTimeKind)
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Filters =
-            [
-                new()
-                {
-                    Property = "DateOfBirth",
-                    Value = "2022-06-15T12:34:56Z"
-                }
-            ]
-        };
-
-        QueryBuildOptions<Goblin> options = new()
-        {
-            OverrideDateTimeKind = dateTimeKind,
-        };
-        
-        // Act
-        
-        IQueryable<Goblin> query = fixture.SampleData.ApplyQuery(request, options);
-        
-        // Assert
-
-        DateTime? queryDateTime =
-            ((ConstantExpression)
-                ((BinaryExpression)
-                    ((LambdaExpression)
-                        ((UnaryExpression)
-                            ((MethodCallExpression)query.Expression).Arguments[1]).Operand).Body).Right).Value as DateTime?;
-        
-        Assert.NotNull(queryDateTime);
-        
-        Assert.True(queryDateTime.Value.Kind == dateTimeKind);
-    }
-
-    [Fact]
-    public void ApplyQuery_PropertyMappingOption_ShouldReturnIdOnFilterAndSort()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Filters =
-            [
-                new()
-                {
-                    Property = "DOB",
-                    Value = "2022-06-15T12:34:56Z",
-                    Operator = FilterOperator.LessThan
-                },
-                new()
-                {
-                    Property = "GoblinName",
-                    Operator = FilterOperator.IsNotEmpty
-                }
-            ],
-            Sorts = [
-                new()
-                {
-                    Property = "GoblinId",
-                    Descending = true
-                }
-            ]
-        };
-
-        QueryBuildOptions<Goblin> options = new()
-        {
-            PropertyMapping = new()
-            {
-                {"DOB", x=>x.DateOfBirth},
-                {"GoblinName", x=>x.Name},
-                {"GoblinId", x=>x.Id}
-            }
-        };
-        
-        // Act
-        
-        IQueryable<Goblin> query = fixture.SampleData.ApplyQuery(request, options);
-        
-        // Assert
-        
-        Assert.True(query.First().Id == 30);
-    }
-
-    [Fact]
-    public void ApplyQuery_HideMappedPropertiesOption_ShouldThrowOnDirectAccessOfMappedProperty()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Filters =
-            [
-                new()
-                {
-                    Property = "DateOfBirth",
-                    Value = "2022-06-15T12:34:56Z",
-                    Operator = FilterOperator.LessThan
-                }
-            ]
-        };
-
-        QueryBuildOptions<Goblin> options = new()
-        {
-            PropertyMapping = new()
-            {
-                {"DOB", x=>x.DateOfBirth}
-            }
-        };
-        
-        //Act
-
-        try
-        {
-            fixture.SampleData.ApplyQuery(request, options);
-        }
-        catch (QueryBuildException ex)
-        {
-            //Assert
-            Assert.True(ex.ExceptionType == QueryBuildExceptionType.MissingProperty);
-            return;
-        }
-        
-        Assert.Fail();
-    }
-
-    [Fact]
-    public void ApplyQuery_HideMappedPropertiesOption_ShouldNotThrowOnDirectAccessOfMappedProperty()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Filters =
-            [
-                new()
-                {
-                    Property = "DateOfBirth",
-                    Value = "2022-06-15T12:34:56Z",
-                    Operator = FilterOperator.LessThan
-                }
-            ]
-        };
-
-        QueryBuildOptions<Goblin> options = new()
-        {
-            PropertyMapping = new()
-            {
-                {"DOB", x=>x.DateOfBirth}
-            },
-            HideMappedProperties = false
-        };
-        
-        //Act
-        
-        fixture.SampleData.ApplyQuery(request, options);
-        
-        Assert.True(true);
-    }
-
-    [Fact]
-    public void ApplyQuery_BindingFlagsOption_ShouldThrow()
-    {
-        
-        // Arrange
-        
-        QueryRequest request = new()
-        {
-            Sorts =
-            [
-                new()
-                {
-                    Property = "Name",
-                }
-            ]
-        };
-
-        QueryBuildOptions<Goblin> options = new()
-        {
-            PropertyBindingFlags = BindingFlags.ExactBinding
-        };
-        
-        // Act
-
-        try
-        {
-            fixture.SampleData.ApplyQuery(request, options);
-        }
-        catch (QueryBuildException ex)
-        {
-            //Assert
-            Assert.True(ex.ExceptionType == QueryBuildExceptionType.MissingProperty);
-            return;
-        }
-        
-        Assert.Fail();
-    }
+[Collection("MongoDbDataCollection")]
+public class MongoDb(MongoDbDataFixture fixture) : BuildOptionsTests
+{
+    protected override ITestDataFixture Fixture { get; } = fixture;
 }

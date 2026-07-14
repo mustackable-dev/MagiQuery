@@ -1,39 +1,33 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MagiQuery.Models;
 using MagiQueryTests.Data;
 using MagiQueryTests.Entities;
-using MagiQuery.Models;
 
-namespace MagiQueryTests.Fixtures;
-public sealed class TestDataFixture: IDisposable
+namespace MagiQueryTests.Fixtures.Implementations;
+
+[CollectionDefinition("PostgreSqlDataCollection")]
+public class PostgreSqlDataCollection : ICollectionFixture<PostgreSqlDataFixture>;
+public sealed class PostgreSqlDataFixture: ITestDataFixture
 {
-    public const DataProvider Provider = DataProvider.Runtime;
+    public DataProvider Provider => DataProvider.PostgreSql;
     public IQueryable<Goblin> SampleData { get; }
     public IQueryable<Contract> Contracts { get; }
     public IQueryable<ContractDetails> ContractDetails { get; }
 
     private readonly TestDbContext? _context;
 
-    public TestDataFixture()
+    public PostgreSqlDataFixture()
     {
-        Stream? testDataStream = typeof(TestDataFixture)
+        Stream? testDataStream = typeof(ITestDataFixture)
             .Assembly
             .GetManifestResourceStream("MagiQueryTests.Data.TestData.json");
         
         JsonSerializerOptions options = new();
         options.Converters.Add(new JsonStringEnumConverter());
-
-        switch (Provider)
-        {
-            case DataProvider.PostgreSql:
-                options.Converters.Add(new PostgreSqlDateTimeConverter());
-                options.Converters.Add(new PostgreSqlDateTimeOffsetConverter());
-                break;
-            case DataProvider.MongoDb:
-                options.Converters.Add(new MongoDbDateTimeConverter());
-                break;
-        }
+        options.Converters.Add(new PostgreSqlDateTimeConverter());
+        options.Converters.Add(new PostgreSqlDateTimeOffsetConverter());
 
         IQueryable<Goblin> rawSampleData =  testDataStream is not null ? 
             JsonSerializer.Deserialize<Goblin[]>(testDataStream, options)!.AsQueryable():
@@ -51,43 +45,25 @@ public sealed class TestDataFixture: IDisposable
                             .Distinct()
                             .AsQueryable();
         
-        if (Provider is not DataProvider.Runtime)
-        {
-            _context = new(Provider);
-            SetUpDatabase();
-            SampleData = _context.Goblins;
-            Contracts = _context.Contracts;
-            ContractDetails = _context.ContractDetails;
-        }
+        _context = new(DataProvider.PostgreSql);
+        SetUpDatabase();
+        SampleData = _context.Goblins;
+        Contracts = _context.Contracts;
+        ContractDetails = _context.ContractDetails;
     }
 
     private void SetUpDatabase()
     {
         Goblin[] sampleData = SampleData.OrderBy(x => x.Id).ToArray();
-        int mongoDbSubElementsIndex = sampleData.Length;
 
         foreach (Goblin goblin in sampleData)
         {
-            if (Provider != DataProvider.MongoDb)
+            //Will get an autoincrement error if we try to force Id values for SQL databases
+            goblin.Id = 0;
+            if (goblin.Contract is not null)
             {
-                //Will get an autoincrement error if we try to force Id values for SQL databases
-                goblin.Id = 0;
-                if (goblin.Contract is not null)
-                {
-                    goblin.Contract.Id = 0;
-                    goblin.Contract.Details.Id = 0;
-                }
-            }
-            else
-            {
-                //For Mongo, id needs to be unique
-                if (goblin.Contract is not null)
-                {
-                    mongoDbSubElementsIndex++;
-                    goblin.Contract.Id = mongoDbSubElementsIndex;
-                    mongoDbSubElementsIndex++;
-                    goblin.Contract.Details.Id = mongoDbSubElementsIndex;
-                }
+                goblin.Contract.Id = 0;
+                goblin.Contract.Details.Id = 0;
             }
 
             _context!.Goblins.Add(goblin);
@@ -111,7 +87,7 @@ public class PostgreSqlDateTimeConverter: JsonConverter<DateTime>
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
-        //Setting timezone to unspecified to avoid issues with timestamp without timezone column in PostgreSQL
+        //Setting timezone to DateTimeKind.Unspecified to avoid issues with timestamp without timezone column in PostgreSQL
         writer.WriteStringValue(DateTime.SpecifyKind(value, DateTimeKind.Unspecified));
     }
 }
@@ -126,19 +102,5 @@ public class PostgreSqlDateTimeOffsetConverter: JsonConverter<DateTimeOffset>
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
     {
         writer.WriteStringValue(value);
-    }
-}
-
-public class MongoDbDateTimeConverter: JsonConverter<DateTime>
-{
-    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return DateTime.SpecifyKind(DateTime.Parse(reader.GetString()!, CultureInfo.InvariantCulture),DateTimeKind.Utc);
-    }
-
-    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-    {
-        //Setting timezone to unspecified to avoid issues with timestamp without timezone column in PostgreSQL
-        writer.WriteStringValue(DateTime.SpecifyKind(value, DateTimeKind.Utc));
     }
 }
