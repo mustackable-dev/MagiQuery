@@ -95,39 +95,31 @@ internal static partial class InternalExtensions
         bool nullEqualityFilter = false,
         bool inverseCondition = false)
     {
-        Type? type = null;
+        Type type = typeof(T);
         string[] properties = definition.InternalProperty.Split('.');
         Expression? nullExpression = null;
         Expression memberExpression = parameterExpression;
         bool isNullable = false;
         bool isParentNullable = false;
         
-        for(int i=0; i<properties.Length; i++)
+        for (int i=0; i<properties.Length; i++)
         {
             string property = properties[i].ToLower();
-            
-            type = (type ?? typeof(T)).GetProperty(property, bindingFlags)?.PropertyType;
-            if (type is null)
-            {
-                throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, property);
-            }
 
-            isNullable = type.IsInherentlyNullable();
+            PropertyTypeComponents? typeComponents = GetPropertyTypeComponents(property, type, bindingFlags);
             
-            Type? underlyingType = Nullable.GetUnderlyingType(type);
-            
-            if (underlyingType is not null)
-            {
-                isNullable = true;
-                type = underlyingType;
-            }
+            if(typeComponents is null)
+                throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, definition.InternalProperty);
+
+            isNullable = typeComponents.IsNullable;
 
             if (isNullable)
             {
                 isParentNullable = true;
             }
             
-            memberExpression = Expression.Property(memberExpression, property);
+            memberExpression = Expression.Property(memberExpression, typeComponents.PropertyInfo);
+            type = typeComponents.PropertyType;
 
             if (i >= properties.Length - 1) continue;
             
@@ -161,6 +153,31 @@ internal static partial class InternalExtensions
             NullHandlingExpression = nullExpression,
             IsNullable = isNullable
         };
+    }
+
+    private static PropertyTypeComponents? GetPropertyTypeComponents(string property, Type parentType, BindingFlags flags)
+    {
+        PropertyInfo? propertyInfo = parentType.GetProperty(property, flags | BindingFlags.IgnoreCase);
+        
+        if (propertyInfo is null)
+            return null;
+
+        PropertyTypeComponents result = new()
+        {
+            PropertyInfo = propertyInfo,
+            PropertyType = propertyInfo.PropertyType,
+            IsNullable = propertyInfo.PropertyType.IsInherentlyNullable()
+        };
+        
+        Type? underlyingType = Nullable.GetUnderlyingType(result.PropertyType);
+        
+        if (underlyingType is null)
+            return result;
+        
+        result.IsNullable = true;
+        result.PropertyType = underlyingType;
+
+        return result;
     }
 
     private static ConstantExpression? GetConstantExpression(
@@ -296,12 +313,19 @@ internal static partial class InternalExtensions
         };
     }
 
-    internal class PropertyExpressionComponents
+    internal record PropertyComponents
     {
-        internal required Type PropertyType { get; init; }
+        internal required Type PropertyType { get; set; }
+        internal bool IsNullable { get; set; }
+    }
+    internal record PropertyTypeComponents : PropertyComponents
+    {
+        internal required PropertyInfo PropertyInfo { get; init; }
+    }
+    internal record PropertyExpressionComponents: PropertyComponents
+    {
         internal required Expression PropertyExpression { get; init; }
         internal Expression? NullHandlingExpression { get; init; }
-        internal bool IsNullable { get; init; }
     }
         
 }
