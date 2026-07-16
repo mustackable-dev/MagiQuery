@@ -58,5 +58,11 @@ public class QueryBuildOptions<T>
     /// (<see cref="DataProvider.Runtime"/>). Unsupported if you are using a remote source like a database
     /// </summary>
     public StringComparison StringComparisonType { get; init; } = StringComparison.Ordinal;
+
+    /// <summary>
+    /// Flags the query builder to fetch cached structures, even if the cache was generated with binding
+    /// flags different from <see cref="QueryBuildOptions&lt;T&gt;.PropertyBindingFlags"/>.
+    /// </summary>
+    public bool DisableCacheBindingFlagsFilter { get; init; } = false;
     internal DataProvider ProviderType { get;  set; } = DataProvider.Runtime;
 }

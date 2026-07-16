@@ -53,7 +53,8 @@ internal static class EntityStructureCache
         depthLevelCounter++;
         
         string cacheKey = string.Concat(baseCacheKey, '.', propertyInfo.Name.ToLower());
-        PropertyTypeComponents components = propertyInfo.GetPropertyTypeComponents();
+        PropertyTypeComponents components = propertyInfo.GetPropertyTypeComponents(flags);
+        
         collector.TryAdd(cacheKey, components);
 
         if (!components.PropertyType.IsClass || components.PropertyType == typeof(string))
@@ -75,13 +76,14 @@ internal static class EntityStructureCache
         }
     }
     
-    private static PropertyTypeComponents GetPropertyTypeComponents(this PropertyInfo propertyInfo)
+    private static PropertyTypeComponents GetPropertyTypeComponents(this PropertyInfo propertyInfo, BindingFlags flags)
     {
         PropertyTypeComponents result = new()
         {
             PropertyInfo = propertyInfo,
             PropertyType = propertyInfo.PropertyType,
-            IsNullable = propertyInfo.PropertyType.IsInherentlyNullable()
+            IsNullable = propertyInfo.PropertyType.IsInherentlyNullable(),
+            FlagsUsed = flags
         };
         
         Type? underlyingType = Nullable.GetUnderlyingType(result.PropertyType);

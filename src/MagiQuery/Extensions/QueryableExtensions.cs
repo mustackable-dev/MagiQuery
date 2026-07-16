@@ -73,7 +73,8 @@ internal static partial class InternalExtensions
                 parameterExpression,
                 false,
                 options.PropertyBindingFlags,
-                translator);
+                translator,
+                disableFlagsFilter: options.DisableCacheBindingFlagsFilter);
 
             try
             {

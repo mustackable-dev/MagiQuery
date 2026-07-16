@@ -41,7 +41,8 @@ internal static partial class InternalExtensions
             options.PropertyBindingFlags,
             translator,
             nullEquality,
-            inverseCondition);
+            inverseCondition,
+            options.DisableCacheBindingFlagsFilter);
         
         CheckOperatorValidity(filter.Operator, components.PropertyType);
         
@@ -96,7 +97,8 @@ internal static partial class InternalExtensions
         BindingFlags bindingFlags,
         ITranslator translator,
         bool nullEqualityFilter = false,
-        bool inverseCondition = false)
+        bool inverseCondition = false,
+        bool disableFlagsFilter = false)
     {
         Type type = typeof(T);
         string[] properties = definition.InternalProperty.Split('.');
@@ -111,9 +113,16 @@ internal static partial class InternalExtensions
         {
             string property = properties[i].ToLower();
             cacheKey = string.Concat(cacheKey, '.', property);
-            
-            if(!EntityStructureCache.StructureCache.TryGetValue(cacheKey, out PropertyTypeComponents? typeComponents))
+
+            if (EntityStructureCache.StructureCache.TryGetValue(cacheKey, out PropertyTypeComponents? typeComponents))
+            {
+                if (!disableFlagsFilter && bindingFlags != typeComponents.FlagsUsed)
+                    typeComponents = null;
+            }
+            else
+            {
                 typeComponents = GetPropertyTypeComponents(property, type, bindingFlags);
+            }
             
             if(typeComponents is null)
                 throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, definition.InternalProperty);
@@ -173,7 +182,8 @@ internal static partial class InternalExtensions
         {
             PropertyInfo = propertyInfo,
             PropertyType = propertyInfo.PropertyType,
-            IsNullable = propertyInfo.PropertyType.IsInherentlyNullable()
+            IsNullable = propertyInfo.PropertyType.IsInherentlyNullable(),
+            FlagsUsed = flags
         };
         
         Type? underlyingType = Nullable.GetUnderlyingType(result.PropertyType);
