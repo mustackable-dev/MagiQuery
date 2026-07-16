@@ -48,7 +48,7 @@ public static class PublicExtensions
     /// size and 1-based page indexing</param>
     /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
     public static QueryResponsePaged<T> GetPagedResponse<T>(this IQueryable<T> source, QueryRequestPaged request)
-        => new(request, source.BuildQuery(request, new()));
+        => QueryResponsePaged<T>.Create(request, source.BuildQuery(request, new()));
     
     /// <summary>
     /// A utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/> on a given
@@ -64,5 +64,39 @@ public static class PublicExtensions
     public static QueryResponsePaged<T> GetPagedResponse<T>(
         this IQueryable<T> source,
         QueryRequestPaged request,
-        QueryBuildOptions<T> buildOptions) => new(request, source.BuildQuery(request, buildOptions));
+        QueryBuildOptions<T> buildOptions)
+        => QueryResponsePaged<T>.Create(request, source.BuildQuery(request, buildOptions));
+    
+    /// <summary>
+    /// An async utility extension that runs ApplyQuery with standard <see cref="QueryBuildOptions&lt;T&gt;"/> on a given IQueryable,
+    /// executes the query and binds the result to a paged response ready to be served back to the client of an
+    /// ASP.NET WebAPI. Takes in a <see cref="QueryRequestPaged"/>, which is a derived class of
+    /// <see cref="QueryRequest"/> that takes in page size and 1-based page indexing.
+    /// </summary>
+    /// <param name="source">The IQueryable to apply the request to</param>
+    /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
+    /// size and 1-based page indexing</param>
+    /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
+    public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(this IQueryable<T> source, QueryRequestPaged request)
+        => GetPagedResponseAsync(source, request, new());
+
+    /// <summary>
+    /// An async utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/> on a given
+    /// IQueryable, executes the query and binds the result to a paged response ready to be served back to the client
+    /// of an ASP.NET WebAPI. Takes in a <see cref="QueryRequestPaged"/>, which is a derived class of
+    /// <see cref="QueryRequest"/> that takes in page size and 1-based page indexing.
+    /// </summary>
+    /// <param name="source">The IQueryable to apply the request to</param>
+    /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
+    /// size and 1-based page indexing</param>
+    /// <param name="buildOptions">The query build options to use when applying the request to the source</param>
+    /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
+    public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(
+        this IQueryable<T> source,
+        QueryRequestPaged request,
+        QueryBuildOptions<T> buildOptions)
+    {
+        IQueryable<T> data = source.BuildQuery(request, buildOptions);
+        return QueryResponsePaged<T>.CreateAsync(request, data, buildOptions.ProviderType);
+    }
 }
