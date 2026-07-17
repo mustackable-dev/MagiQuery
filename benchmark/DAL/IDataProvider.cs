@@ -1,4 +1,4 @@
-using WebApiExample.DAL.Entities;
+using Benchmark.DAL.Entities;
 
 namespace Benchmark.DAL;
 

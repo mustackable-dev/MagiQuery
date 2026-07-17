@@ -1,9 +1,4 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace WebApiExample.DAL.Entities;
-
-// Necessary for Ormamu
-[Table("GoblinsCollection")]
+namespace Benchmark.DAL.Entities;
 public class Goblin: EntityBase {
     public string Name { get; set; }
     public char FavouriteLetter { get; set; }
@@ -20,7 +15,6 @@ public class Goblin: EntityBase {
     public bool IsActive { get; set; }
     public Taste Taste { get; set; }
     public DateTime DateOfBirth { get; set; }
-    public DateTimeOffset DateOfConception { get; set; }
     public bool? HobbitAncestry { get; set; } = false;
     public Contract? Contract { get; set; }
 }

@@ -1,8 +1,8 @@
 using MagiQuery.Attributes;
 
-namespace WebApiExample.DAL.Entities;
+namespace Benchmark.DAL.Entities;
 
-[Cached(3)]
+[MagiCached(3)]
 public class GoblinCached: EntityBase {
     public string Name { get; set; }
     public char FavouriteLetter { get; set; }
@@ -19,7 +19,6 @@ public class GoblinCached: EntityBase {
     public bool IsActive { get; set; }
     public Taste Taste { get; set; }
     public DateTime DateOfBirth { get; set; }
-    public DateTimeOffset DateOfConception { get; set; }
     public bool? HobbitAncestry { get; set; } = false;
     public Contract? Contract { get; set; }
 }

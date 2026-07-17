@@ -1,4 +1,4 @@
-namespace WebApiExample.DAL.Entities;
+namespace Benchmark.DAL.Entities;
 
 public class Contract: EntityBase
 {

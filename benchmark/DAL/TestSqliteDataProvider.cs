@@ -2,23 +2,23 @@ using System.Data;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Benchmark.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using WebApiExample.DAL.Entities;
 
 namespace Benchmark.DAL;
 
 public sealed class TestSqliteDataProvider : DbContext, IDataProvider
 {
-    public IQueryable<Goblin> Goblins => GoblinsCollection;
-    public IQueryable<GoblinCached> CachedGoblins => CachedGoblinsCollection;
-    public DbSet<Goblin> GoblinsCollection { get; set; }
-    public DbSet<GoblinCached> CachedGoblinsCollection { get; set; }
+    IQueryable<Goblin> IDataProvider.Goblins => Goblins;
+    IQueryable<GoblinCached> IDataProvider.CachedGoblins => CachedGoblins;
+    public DbSet<Goblin> Goblins { get; set; }
+    public DbSet<GoblinCached> CachedGoblins { get; set; }
     public DbSet<Contract> Contracts { get; set; }
     public DbSet<ContractDetails> ContractDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("DataSource=file::memory:?cache=shared");
+        optionsBuilder.UseSqlite(BenchmarkStaticData.SqliteConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,14 +53,14 @@ public sealed class TestSqliteDataProvider : DbContext, IDataProvider
         IQueryable<Goblin> goblins = 
             JsonSerializer.Deserialize<Goblin[]>(testDataStream, options)!.AsQueryable();
         
-        GoblinsCollection.AddRange(goblins);
+        Goblins.AddRange(goblins);
 
         testDataStream.Position = 0;
         
         IQueryable<GoblinCached> cachedGoblins = 
             JsonSerializer.Deserialize<GoblinCached[]>(testDataStream, options)!.AsQueryable();
         
-        CachedGoblinsCollection.AddRange(cachedGoblins);
+        CachedGoblins.AddRange(cachedGoblins);
         
         SaveChanges();
 

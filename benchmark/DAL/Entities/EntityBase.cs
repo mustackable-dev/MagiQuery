@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApiExample.DAL.Entities;
+namespace Benchmark.DAL.Entities;
 
 public abstract class EntityBase
 {

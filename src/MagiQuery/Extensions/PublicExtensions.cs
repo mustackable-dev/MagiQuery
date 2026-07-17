@@ -18,7 +18,9 @@ public static class PublicExtensions
     /// <param name="source">The IQueryable to apply the request to</param>
     /// <param name="request">The generic filtering and sort request to apply to the source</param>
     /// <returns>An IQueryable you can modify further before calling</returns>
-    public static IQueryable<T> ApplyQuery<T>(this IQueryable<T> source, QueryRequest request)
+    public static IQueryable<T> ApplyQuery<T>(
+        this IQueryable<T> source,
+        QueryRequest request) where T: class
         => source.BuildQuery(request, new());
     
     /// <summary>
@@ -34,7 +36,7 @@ public static class PublicExtensions
     public static IQueryable<T> ApplyQuery<T>(
         this IQueryable<T> source,
         QueryRequest request,
-        QueryBuildOptions<T> buildOptions)
+        QueryBuildOptions<T> buildOptions) where T: class
         => source.BuildQuery(request, buildOptions);
     
     /// <summary>
@@ -47,7 +49,9 @@ public static class PublicExtensions
     /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
     /// size and 1-based page indexing</param>
     /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
-    public static QueryResponsePaged<T> GetPagedResponse<T>(this IQueryable<T> source, QueryRequestPaged request)
+    public static QueryResponsePaged<T> GetPagedResponse<T>(
+        this IQueryable<T> source,
+        QueryRequestPaged request) where T: class
         => QueryResponsePaged<T>.Create(request, source.BuildQuery(request, new()));
     
     /// <summary>
@@ -64,7 +68,7 @@ public static class PublicExtensions
     public static QueryResponsePaged<T> GetPagedResponse<T>(
         this IQueryable<T> source,
         QueryRequestPaged request,
-        QueryBuildOptions<T> buildOptions)
+        QueryBuildOptions<T> buildOptions) where T: class
         => QueryResponsePaged<T>.Create(request, source.BuildQuery(request, buildOptions));
     
     /// <summary>
@@ -77,8 +81,10 @@ public static class PublicExtensions
     /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
     /// size and 1-based page indexing</param>
     /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
-    public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(this IQueryable<T> source, QueryRequestPaged request)
-        => GetPagedResponseAsync(source, request, new());
+    public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(
+        this IQueryable<T> source,
+        QueryRequestPaged request) where T: class
+        => source.GetPagedResponseAsync(request, new());
 
     /// <summary>
     /// An async utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/> on a given
@@ -94,7 +100,7 @@ public static class PublicExtensions
     public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(
         this IQueryable<T> source,
         QueryRequestPaged request,
-        QueryBuildOptions<T> buildOptions)
+        QueryBuildOptions<T> buildOptions) where T: class
     {
         IQueryable<T> data = source.BuildQuery(request, buildOptions);
         return QueryResponsePaged<T>.CreateAsync(request, data, buildOptions.ProviderType);

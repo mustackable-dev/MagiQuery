@@ -5,7 +5,7 @@ namespace MagiQuery.Models;
 /// <summary>
 /// A utility class instance you can return to the client of a WebAPI
 /// </summary>
-public record QueryResponsePaged<T>
+public record QueryResponsePaged<T> where T: class
 {
     /// <summary>
     /// The result of your query
@@ -67,7 +67,9 @@ public record QueryResponsePaged<T>
         int totalItems = 
             provider == DataProvider.Runtime ?
                 result.Count() :
-                await result.CountAsync();
+                await result
+                    .AsNoTracking()
+                    .CountAsync();
         
         int totalPages = (int)Math.Ceiling((double)totalItems / request.PageSize);
 
@@ -78,7 +80,9 @@ public record QueryResponsePaged<T>
             Data = 
                 provider == DataProvider.Runtime ? 
                     dataSlice.ToList() :
-                    await dataSlice.ToListAsync(),
+                    await dataSlice
+                        .AsNoTracking()
+                        .ToListAsync(),
             Page = request.Page,
             PageSize = request.PageSize,
             TotalItems = totalItems,

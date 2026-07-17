@@ -46,50 +46,46 @@ The idea is simple - you write it once, and it should be able to handle any scen
 
 ## Quick Start
 
+Here is an example of how to use `MagiQuery` in a minimal WebAPI.
+
 1. Add the NuGet package to your project:
 
+   ```
+    dotnet add package MagiQuery
+   ```
 
-    ```dotnet add package MagiQuery```
+2. Get a reference to an IQueryable (from a DbContext or somewhere else) that holds the data that you would like to expose for generic filtering and sorting. 
 
-2. Get a reference to an IQueryable (be it from a DbContext or somewhere else) and use the ```ApplyQuery``` extension method like this:
+   Then use the ```ApplyQuery``` extension method like this:
 
     ```csharp
-    [Route("Goblins")]
-    public class QueryController(TestDbContext context) : ControllerBase
-    {
-        [HttpPost("Query")]
-        [ProducesResponseType<IEnumerable<Goblin>>(StatusCodes.Status200OK)]
-        public IActionResult QueryGoblins([FromBody] QueryRequest request)
-        {
-            var goblinsQuery = context.Goblins.ApplyQuery(request);
-            return Ok(goblinsQuery.ToArray());
-        }
-    }
+    app
+        .MapPost(
+            "Goblins/Query",
+            async (QueryRequest request, TestDbContext context) =>
+            {
+                var goblinsQuery = context.Goblins.ApplyQuery(request);
+                return Results.Ok(await goblinsQuery.ToArrayAsync());
+            })
+        .Produces<Goblin[]>();
     ```
-
-    ... or simply use the utility extension method ```GetPagedResponse``` to return a result with pagination like this:
-
+    ... or simply use the utility extension method ```GetPagedResponseAsync``` to return a result with pagination like this:
     ```csharp
-    [Route("Goblins")]
-    public class QueryController(TestDbContext context) : ControllerBase
-    {
-        [HttpPost("Query")]
-        [ProducesResponseType<QueryPagedResponse<Goblin>>(StatusCodes.Status200OK)]
-        public IActionResult QueryGoblins([FromBody] QueryPagedRequest request)
-            => Ok(context.Goblins.GetPagedResponse(request));
-    }
+    app
+        .MapPost(
+            "Goblins/Query",
+            async (QueryRequestPaged request, TestDbContext context)
+                => Results.Ok(await context.Goblins.GetPagedResponseAsync(request)))
+        .Produces<QueryResponsePaged<Goblin>>();
     ```
 
 3. Optionally, add a `JsonStringEnumConverter` to your serialization options, so you can refer to members of the `FilterOperator` enum by name, rather than by their `int` equivalents:
-
     ```csharp
     builder.Services
-        .AddControllers()
-            .AddJsonOptions(
-                x => x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        .ConfigureHttpJsonOptions(x
+            => x.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     ```
-
-    If you prefer using the `int` equivalents for members of `FilterOperator`, please consult the table [here](#supported-operators).
+   If you prefer using the `int` equivalents for members of `FilterOperator`, please consult the table [here](#supported-operators).
 
 
 4. Finally, hit the `/Goblins/Query` POST endpoint with a payload like this one:
@@ -111,10 +107,11 @@ The idea is simple - you write it once, and it should be able to handle any scen
     }
     ```
 
-    ... and you will get a `Goblin` collection that consist only of goblins, whose names start with `Wiz`, and who were born after October 1st, 1010.  
+   ... and you will get a `Goblin` collection that consist only of goblins, whose names start with `Wiz`, and who were born after October 1st, 1010.
 
 
-We have provided a testing playground project [WebApiExample](https://github.com/mustackable-dev/MagiQuery/tree/main/example) in this repository, where you can experiment with MagiQuery and get a feel for how it works and what it can do for you.
+
+You will find a standalone, testing playground project [WebApiExample](https://github.com/mustackable-dev/MagiQuery/tree/main/example) in this repository, where you can experiment with MagiQuery and get a feel for how it works and what it can do for you.
 
 It is preloaded with test data and uses an in-memory SQLite database. It has a Swagger implementation loaded with several examples of `QueryRequest` payloads.
 
@@ -537,6 +534,61 @@ public class QueryController(TestDbContext context) : ControllerBase
 Note that this approach can be extremely resource-intensive and should be avoided whenever possible.
 
 If you have no other option but to use it, at least try to narrow down the amount of entries you will need to load into memory to minimize the resource drain on each call.
+
+## Caching
+
+🔴 **IMPORTANT** This feature is available from version 1.0.1 onward.
+
+If you want to squeeze every bit of performance from your queries, you can use the `[MagiCached]` attribute on an entity model to cache its structure at runtime and reduce reflection calls to a minimum.
+
+Using this feature will reduce the time it takes to generate the query expression by about 7% (see more details in the Benchmark section).
+
+However, please keep in mind that this is not a magic bullet. In a real production setup connected to a database, the bottlenecks are usually quite more significant elsewhere (for example, your choice of using an ORM or not).
+
+## Benchmark
+
+A standalone [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) benchmark suite is available in the repo.
+
+The suite uses a data set of 30 entries, against which we run the [Multiple Filters with Complex Logic](#multiple-filters-with-complex-logic) query.
+
+All benchmark results in this README.MD were ran on .NET SDK 10.0.109, 12th Gen Intel Core i9-12900 machine running on EndeavourOS.
+
+### [MagiCache] Performance Gain
+
+Here is the benchmarking of using the `[MagiCache]` attribute as opposed to the default setup without cache:
+
+```
+| Method              | Mean     | Error     | StdDev    | Ratio | Gen0   | Allocated | Alloc Ratio |
+|-------------------- |---------:|----------:|----------:|------:|-------:|----------:|------------:|
+| QueryBuild          | 3.471 us | 0.0196 us | 0.0153 us |  1.00 | 0.4539 |      7 KB |        1.00 |
+| QueryBuildWithCache | 3.248 us | 0.0179 us | 0.0150 us |  0.94 | 0.4425 |    6.8 KB |        0.97 |
+
+```
+As you can see, there are some gains in speed and also some reductions in allocations.
+
+However, it is advisable to consider the absolute numbers in the context of the end-to-end result fetch workflow benchmark data below, which is more in line with a real-world scenario.
+
+### Result Fetch Benchmark
+
+Here is a benchmark that compares the performance of MagiQuery parsing and running the test query against explicit, static implementations of the same query with EFCore and with Dapper.
+
+```
+| Method    | DatabaseType | Mean      | Error    | StdDev    | Median    | Gen0   | Gen1   | Allocated |
+|---------- |------------- |----------:|---------:|----------:|----------:|-------:|-------:|----------:|
+| MagiQuery | Sqlite       |  75.56 us | 0.506 us |  0.473 us |  75.69 us | 1.7090 | 0.4883 |  29.73 KB |
+| EFCore    | Sqlite       |  73.49 us | 0.437 us |  0.365 us |  73.54 us | 1.4648 | 0.4883 |  24.91 KB |
+| Dapper    | Sqlite       |  61.78 us | 0.468 us |  0.438 us |  61.75 us | 0.8545 |      - |  14.57 KB |
+| MagiQuery | PostgreSql   | 141.50 us | 4.076 us | 11.630 us | 137.51 us | 1.4648 |      - |  25.41 KB |
+| EFCore    | PostgreSql   | 140.15 us | 3.054 us |  8.762 us | 139.16 us | 0.9766 |      - |  20.58 KB |
+| Dapper    | PostgreSql   | 123.15 us | 3.248 us |  9.474 us | 120.96 us | 0.7324 |      - |  13.01 KB |
+
+```
+
+The benchmarks were run against both an in-memory Sqlite and a local PostgreSql local instance.
+
+As you can see, the performance penalty of using MagiQuery is negligble compared to an explicit, staticly-written EFCore query.
+
+All in all, a small price to pay for never having to write more than one query endpoint per entity.
 
 ## Examples
 

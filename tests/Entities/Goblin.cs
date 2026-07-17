@@ -1,8 +1,5 @@
-using MagiQuery.Attributes;
-
 namespace MagiQueryTests.Entities;
 
-[Cached(depthLevel: 3)]
 public class Goblin: EntityBase
 {
     public string Name { get; set; } = null!;

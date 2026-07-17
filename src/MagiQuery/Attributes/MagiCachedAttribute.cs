@@ -8,7 +8,7 @@ namespace MagiQuery.Attributes;
 /// to a minimum
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public class CachedAttribute: Attribute
+public class MagiCachedAttribute: Attribute
 {
     /// <summary>
     /// The depth level to be used when caching the entity's structure
@@ -23,7 +23,7 @@ public class CachedAttribute: Attribute
     /// <param name="propertyBindingFlags">The <see cref="BindingFlags"/> to be used when enumerating properties
     /// to be cached from the entity</param>
     /// </summary>
-    public CachedAttribute(
+    public MagiCachedAttribute(
         int depthLevel = 10,
         BindingFlags propertyBindingFlags = Constants.DefaultPropertyBindingFlags)
     {

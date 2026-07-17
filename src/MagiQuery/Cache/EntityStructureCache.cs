@@ -16,7 +16,7 @@ internal static class EntityStructureCache
         Dictionary<string, PropertyTypeComponents> result = new();
         foreach (var type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()))
         {
-            CachedAttribute? cachedAttribute = type.GetCustomAttribute<CachedAttribute>();
+            MagiCachedAttribute? cachedAttribute = type.GetCustomAttribute<MagiCachedAttribute>();
             
             if(cachedAttribute is null)
                 continue;

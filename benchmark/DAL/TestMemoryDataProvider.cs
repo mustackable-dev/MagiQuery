@@ -2,7 +2,7 @@ using System.Data;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using WebApiExample.DAL.Entities;
+using Benchmark.DAL.Entities;
 
 namespace Benchmark.DAL;
 
