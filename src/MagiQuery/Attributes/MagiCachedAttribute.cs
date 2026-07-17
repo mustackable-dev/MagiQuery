@@ -27,6 +27,9 @@ public class MagiCachedAttribute: Attribute
         int depthLevel = 10,
         BindingFlags propertyBindingFlags = Constants.DefaultPropertyBindingFlags)
     {
+        if (depthLevel is < 1 or > 100)
+            throw new ArgumentOutOfRangeException(nameof(depthLevel), "Depth level should be between 1 and 100");
+        
         DepthLevel = depthLevel;
         PropertyBindingFlags = propertyBindingFlags;
     }

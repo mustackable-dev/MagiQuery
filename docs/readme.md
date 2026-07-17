@@ -440,7 +440,7 @@ The `StringComparisonType` property allows you to specify the `StringComparison`
 - StringComparison.CurrentCultureIgnoreCase
 ```
 
-## Override CultureInfo and Exact Parse Format
+### Override CultureInfo and Exact Parse Format
 
 MagiQuery also offers the option to provide an override `CultureInfo` code and an exact parse format to ensure the string `value` you provide for a filter is parsed correctly by the .Net application.
 
@@ -491,6 +491,8 @@ If you want to override the `CultureInfo` on a `QueryRequest` level, you can rew
 
 Even if a request-wide `CultureInfo` override is in effect, you can still override the `CultureInfo` code at the level of an individual filter or sort.
 
+### Disabling
+
 ### Extended Capabilities for `Runtime` IQueryables
 
 If the collection you are querying has already been fully loaded into memory (i.e. you are using the [Runtime](#supported-data-providers) data provider), the `overrideCulture` and `exactParseFormat` properties are also applied to the members of the collection.
@@ -515,33 +517,29 @@ Which will return all entries where the month name ends in "er" and the first di
 
 🔴 **IMPORTANT** You cannot do this directly with a remote [data provider](#supported-data-providers) like a database.
 
-If you still want the same functionality with a database, you will first need to query the database to load all relevant entities into a collection in the memory, and then cast the collection as an IQueryable, before applying the `QueryRequest`. Like this:
+### Disabling Cache `BindingFlags` Filter
 
-```csharp
-[Route("Goblins")]
-public class QueryController(TestDbContext context) : ControllerBase
-{
-    [HttpPost("Query")]
-    [ProducesResponseType<QueryResponsePaged<Goblin>>(StatusCodes.Status200OK)]
-    public IActionResult QueryGoblins([FromBody] QueryRequestPaged request)
-    {
-        var goblins = context.Goblins.ToArray();
-        return Ok(goblins.AsQueryable().GetPagedResponse(request));
-    }
-}
-```
+When you are using [Caching](#caching) via the `[MagiCache]` attribute, MagiQuery will only retrieve matching cached structure data, if there is equality between 
+the `PropertyBindingFlags` defined in your query's `QueryBuildOption` and the `PropertyBindingFlags` value defined in your `[MagiCache]` attribute flag that triggered the cache generation.
 
-Note that this approach can be extremely resource-intensive and should be avoided whenever possible.
+Naturally, this is the case due to security reasons, as the goal is to prevent accidentally leaking hidden properties.
 
-If you have no other option but to use it, at least try to narrow down the amount of entries you will need to load into memory to minimize the resource drain on each call.
+You can explicitly disable this filtering by setting `DisableCacheBindingFlagsFilter` in `QueryBuildOptions` to `true`. Use with caution.
 
 ## Caching
 
-🔴 **IMPORTANT** This feature is available from version 1.0.1 onward.
+🔴 **IMPORTANT** This feature is available from version 1.0.1 onward only.
 
 If you want to squeeze every bit of performance from your queries, you can use the `[MagiCached]` attribute on an entity model to cache its structure at runtime and reduce reflection calls to a minimum.
 
-Using this feature will reduce the time it takes to generate the query expression by about 7% (see more details in the Benchmark section).
+There are two parameters to the `[MagiCached]` attribute:
+
+- **Depth Level** - determines how deep the type data caching of an entity should go. At level 1, only the type data for the entity's immediate properties will be cached. At level 2, not only the entity's immediate properties will be considered, but also the sub-properties of the entity's immediate class properties. Similarly, level 3 goes even further down the structure tree, and so on and so on. The value range for depth is 1 to 100.
+
+
+- **Property Binding Flags** - determines the `BindingFlags` used when enumerating properties for caching. Please note that in order for your query to take advantage of the cache, the `BindingFlags` specified here should match the ones in `PropertyBindingFlags` in `QueryBuildOptions`, unless BindingFlags filtering is [explicitly disabled](#disabling-cache-bindingflags-filter).
+
+Using this feature will reduce the time it takes to generate the query expression by about 7% (see more details in the [Benchmark](#benchmark) section).
 
 However, please keep in mind that this is not a magic bullet. In a real production setup connected to a database, the bottlenecks are usually quite more significant elsewhere (for example, your choice of using an ORM or not).
 
@@ -584,9 +582,9 @@ Here is a benchmark that compares the performance of MagiQuery parsing and runni
 
 ```
 
-The benchmarks were run against both an in-memory Sqlite and a local PostgreSql local instance.
+The benchmarks were run against both an in-memory SQLite database, and a local PostgreSQL local instance.
 
-As you can see, the performance penalty of using MagiQuery is negligble compared to an explicit, staticly-written EFCore query.
+As you can see, the performance penalty of using MagiQuery is negligible compared to an explicit, statically-written EFCore query.
 
 All in all, a small price to pay for never having to write more than one query endpoint per entity.
 
