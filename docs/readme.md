@@ -533,11 +533,11 @@ You can explicitly disable this filtering by setting `DisableCacheBindingFlagsFi
 
 🔴 **IMPORTANT** This feature is available from version 1.0.1 onward only.
 
-If you want to squeeze every bit of performance from your queries, you can use the `[MagiCached]` attribute on an entity model to cache its structure at runtime and reduce reflection calls to a minimum.
+If you want to squeeze every bit of performance from your queries, you can use the `[MagiCached]` attribute on an entity model class definition to cache its structure at runtime and reduce reflection calls to a minimum.
 
 There are two parameters to the `[MagiCached]` attribute:
 
-- **Depth Level** - determines how deep the type data caching of an entity should go. At level 1, only the type data for the entity's immediate properties will be cached. At level 2, not only the entity's immediate properties will be considered, but also the sub-properties of the entity's immediate class properties. Similarly, level 3 goes even further down the structure tree, and so on and so on. The value range for depth is 1 to 100.
+- **Depth Level** - determines how deep the structure caching of an entity should go. At level 1, only the structure (type data) for the entity's immediate properties will be cached. At level 2, not only the entity's immediate properties will be considered, but also the sub-properties of the entity's immediate class properties. Similarly, level 3 goes even further down the structure tree, and so on and so on. The value range for depth is 1 to 100.
 
 
 - **Property Binding Flags** - determines the `BindingFlags` used when enumerating properties for caching. Please note that in order for your query to take advantage of the cache, the `BindingFlags` specified here should match the ones in `PropertyBindingFlags` in `QueryBuildOptions`, unless BindingFlags filtering is [explicitly disabled](#disabling-cache-bindingflags-filter).
@@ -567,7 +567,7 @@ Here is the benchmarking of using the `[MagiCache]` attribute as opposed to the 
 ```
 As you can see, there are some gains in speed and also some reductions in allocations.
 
-However, it is advisable to consider the absolute numbers in the context of the end-to-end result fetch workflow benchmark data below, which is more in line with a real-world scenario.
+However, it is advisable to consider the absolute numbers in the context of the end-to-end result fetch workflow benchmark data in the next section, which is more in line with a real-world scenario.
 
 ### Result Fetch Benchmark
 
