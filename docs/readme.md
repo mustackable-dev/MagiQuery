@@ -19,8 +19,13 @@
     * [Override DateTimeKind](#override-datetimekind)
     * [Specifying `BindingFlags` for Property Matching](#specifying-bindingflags-for-property-matching)
     * [Configuring `StringComparison` per Query](#configuring-stringcomparison-per-query)
-  * [Override CultureInfo and Exact Parse Format](#override-cultureinfo-and-exact-parse-format)
+    * [Override CultureInfo and Exact Parse Format](#override-cultureinfo-and-exact-parse-format)
     * [Extended Capabilities for `Runtime` IQueryables](#extended-capabilities-for-runtime-iqueryables)
+    * [Disabling Cache `BindingFlags` Filter](#disabling-cache-bindingflags-filter)
+  * [Caching](#caching)
+  * [Benchmark](#benchmark)
+    * [[MagiCache] Performance Gain](#magicache-performance-gain)
+    * [Result Fetch Benchmark](#result-fetch-benchmark)
   * [Examples](#examples)
     * [Single Filter](#single-filter)
     * [Multiple Filters with AND operator](#multiple-filters-with-and-operator)
@@ -491,8 +496,6 @@ If you want to override the `CultureInfo` on a `QueryRequest` level, you can rew
 
 Even if a request-wide `CultureInfo` override is in effect, you can still override the `CultureInfo` code at the level of an individual filter or sort.
 
-### Disabling
-
 ### Extended Capabilities for `Runtime` IQueryables
 
 If the collection you are querying has already been fully loaded into memory (i.e. you are using the [Runtime](#supported-data-providers) data provider), the `overrideCulture` and `exactParseFormat` properties are also applied to the members of the collection.
@@ -520,9 +523,9 @@ Which will return all entries where the month name ends in "er" and the first di
 ### Disabling Cache `BindingFlags` Filter
 
 When you are using [Caching](#caching) via the `[MagiCache]` attribute, MagiQuery will only retrieve matching cached structure data, if there is equality between 
-the `PropertyBindingFlags` defined in your query's `QueryBuildOption` and the `PropertyBindingFlags` value defined in your `[MagiCache]` attribute flag that triggered the cache generation.
+the `PropertyBindingFlags` defined in your query's `QueryBuildOption` and the `PropertyBindingFlags` value defined in your `[MagiCache]` attribute flag (which triggered the cache generation).
 
-Naturally, this is the case due to security reasons, as the goal is to prevent accidentally leaking hidden properties.
+Naturally, this is the case due to security reasons, as the goal is to prevent accidental leaks of hidden properties.
 
 You can explicitly disable this filtering by setting `DisableCacheBindingFlagsFilter` in `QueryBuildOptions` to `true`. Use with caution.
 
@@ -568,7 +571,7 @@ However, it is advisable to consider the absolute numbers in the context of the 
 
 ### Result Fetch Benchmark
 
-Here is a benchmark that compares the performance of MagiQuery parsing and running the test query against explicit, static implementations of the same query with EFCore and with Dapper.
+Here is a benchmark that showcases the performance of MagiQuery parsing and running the test query, and compares it against explicit, static implementations of the same query with EFCore and with Dapper.
 
 ```
 | Method    | DatabaseType | Mean      | Error    | StdDev    | Median    | Gen0   | Gen1   | Allocated |
@@ -584,9 +587,7 @@ Here is a benchmark that compares the performance of MagiQuery parsing and runni
 
 The benchmarks were run against both an in-memory SQLite database, and a local PostgreSQL local instance.
 
-As you can see, the performance penalty of using MagiQuery is negligible compared to an explicit, statically-written EFCore query.
-
-All in all, a small price to pay for never having to write more than one query endpoint per entity.
+As you can see, the performance penalty of using MagiQuery is relatively negligible. All in all, a small price to pay for never having to write more than one query endpoint per entity.
 
 ## Examples
 

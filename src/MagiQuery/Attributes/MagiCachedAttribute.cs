@@ -21,7 +21,7 @@ public class MagiCachedAttribute: Attribute
     /// to a minimum
     /// <param name="depthLevel">The depth level to be used when caching the entity's structure</param>
     /// <param name="propertyBindingFlags">The <see cref="BindingFlags"/> to be used when enumerating properties
-    /// to be cached from the entity</param>
+    /// to be cached from the entity. Accepted values range from 1 to 100.</param>
     /// </summary>
     public MagiCachedAttribute(
         int depthLevel = 10,
