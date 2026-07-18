@@ -3,7 +3,7 @@ namespace MagiQuery.Models;
 /// <summary>
 /// This is the base class for a MagiQuery request for generic filtering and sorting
 /// </summary>
-public class QueryRequest
+public record QueryRequest
 {
     /// <summary>
     /// This is the collection of <see cref="FilterDefinition"/> to be used during the query build process. Please

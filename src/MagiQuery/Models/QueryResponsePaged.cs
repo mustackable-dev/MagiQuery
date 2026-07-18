@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MagiQuery.Models;
 
 /// <summary>
-/// A utility class instance you can return to the client of a WebAPI
+/// A utility class you can return to the client of a WebAPI
 /// </summary>
 public record QueryResponsePaged<T> where T: class
 {

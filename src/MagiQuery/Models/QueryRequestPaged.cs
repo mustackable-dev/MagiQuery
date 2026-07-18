@@ -5,7 +5,7 @@ namespace MagiQuery.Models;
 /// A <see cref="QueryRequest"/>-derived request with additional parameters for page
 /// size and 1-based page indexing
 /// </summary>
-public class QueryRequestPaged: QueryRequest
+public record QueryRequestPaged: QueryRequest
 {
     /// <summary>
     /// Represents the page you would like to retrieve. Uses 1-based indexing.

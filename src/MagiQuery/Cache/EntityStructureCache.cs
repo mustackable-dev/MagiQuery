@@ -26,10 +26,8 @@ internal static class EntityStructureCache
             foreach (PropertyInfo property in type.GetProperties(cachedAttribute.PropertyBindingFlags))
             {
                 int depthLevel = 0;
-                
-                GeneratePropertyTypeComponents(
-                    property,
-                    cacheBaseKey,
+
+                property.GeneratePropertyTypeComponents(cacheBaseKey,
                     cachedAttribute.DepthLevel,
                     cachedAttribute.PropertyBindingFlags,
                     ref result,
@@ -63,7 +61,8 @@ internal static class EntityStructureCache
         foreach (PropertyInfo property in components.PropertyType.GetProperties(flags))
         {
             int localDepthLevel = depthLevelCounter;
-            //Endless DateTime.Date loop needs to be broken
+            
+            //Circular references need to be broken
             if (property.PropertyType == components.PropertyType)
                 continue;
             

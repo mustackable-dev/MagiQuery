@@ -19,9 +19,10 @@ public class MagiCachedAttribute: Attribute
     /// <summary>
     /// Apply this attribute to an entity model to cache its structure at runtime, thereby reducing reflection calls
     /// to a minimum
-    /// <param name="depthLevel">The depth level to be used when caching the entity's structure</param>
+    /// <param name="depthLevel">The depth level to be used when caching the entity's structure. Accepted values range
+    /// from 1 to 100.</param>
     /// <param name="propertyBindingFlags">The <see cref="BindingFlags"/> to be used when enumerating properties
-    /// to be cached from the entity. Accepted values range from 1 to 100.</param>
+    /// to be cached from the entity</param>
     /// </summary>
     public MagiCachedAttribute(
         int depthLevel = 10,

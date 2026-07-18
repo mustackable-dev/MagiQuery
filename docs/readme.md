@@ -559,10 +559,10 @@ All benchmark results in this README.MD were ran on .NET SDK 10.0.109, 12th Gen 
 Here is the benchmarking of using the `[MagiCache]` attribute as opposed to the default setup without cache:
 
 ```
-| Method              | Mean     | Error     | StdDev    | Ratio | Gen0   | Allocated | Alloc Ratio |
-|-------------------- |---------:|----------:|----------:|------:|-------:|----------:|------------:|
-| QueryBuild          | 3.471 us | 0.0196 us | 0.0153 us |  1.00 | 0.4539 |      7 KB |        1.00 |
-| QueryBuildWithCache | 3.248 us | 0.0179 us | 0.0150 us |  0.94 | 0.4425 |    6.8 KB |        0.97 |
+| Method              | Mean     | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|-------------------- |---------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
+| QueryBuild          | 3.417 us | 0.0598 us | 0.0640 us |  1.00 |    0.03 | 0.4425 |   6.82 KB |        1.00 |
+| QueryBuildWithCache | 3.239 us | 0.0331 us | 0.0310 us |  0.95 |    0.02 | 0.4387 |   6.74 KB |        0.99 |
 
 ```
 As you can see, there are some gains in speed and also some reductions in allocations.
@@ -574,20 +574,22 @@ However, it is advisable to consider the absolute numbers in the context of the 
 Here is a benchmark that showcases the performance of MagiQuery parsing and running the test query, and compares it against explicit, static implementations of the same query with EFCore and with Dapper.
 
 ```
-| Method    | DatabaseType | Mean      | Error    | StdDev    | Median    | Gen0   | Gen1   | Allocated |
-|---------- |------------- |----------:|---------:|----------:|----------:|-------:|-------:|----------:|
-| MagiQuery | Sqlite       |  75.56 us | 0.506 us |  0.473 us |  75.69 us | 1.7090 | 0.4883 |  29.73 KB |
-| EFCore    | Sqlite       |  73.49 us | 0.437 us |  0.365 us |  73.54 us | 1.4648 | 0.4883 |  24.91 KB |
-| Dapper    | Sqlite       |  61.78 us | 0.468 us |  0.438 us |  61.75 us | 0.8545 |      - |  14.57 KB |
-| MagiQuery | PostgreSql   | 141.50 us | 4.076 us | 11.630 us | 137.51 us | 1.4648 |      - |  25.41 KB |
-| EFCore    | PostgreSql   | 140.15 us | 3.054 us |  8.762 us | 139.16 us | 0.9766 |      - |  20.58 KB |
-| Dapper    | PostgreSql   | 123.15 us | 3.248 us |  9.474 us | 120.96 us | 0.7324 |      - |  13.01 KB |
+| Method    | DatabaseType | Mean      | Error    | StdDev   | Ratio | RatioSD | Gen0   | Gen1   | Allocated | Alloc Ratio |
+|---------- |------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|------------:|
+| EFCore    | Sqlite       |  73.36 us | 0.487 us | 0.456 us |  1.00 |    0.01 | 1.4648 | 0.4883 |  24.91 KB |        1.00 |
+| MagiQuery | Sqlite       |  75.62 us | 0.500 us | 0.444 us |  1.03 |    0.01 | 1.9531 | 0.4883 |  30.03 KB |        1.21 |
+| Dapper    | Sqlite       |  62.50 us | 0.245 us | 0.229 us |  0.85 |    0.01 | 0.8545 |      - |  14.57 KB |        0.58 |
+|           |              |           |          |          |       |         |        |        |           |             |
+| EFCore    | PostgreSql   | 134.00 us | 2.652 us | 6.894 us |  1.00 |    0.07 | 0.9766 |      - |  20.59 KB |        1.00 |
+| MagiQuery | PostgreSql   | 137.56 us | 2.877 us | 8.256 us |  1.03 |    0.08 | 1.4648 |      - |  25.55 KB |        1.24 |
+| Dapper    | PostgreSql   | 111.37 us | 2.180 us | 3.329 us |  0.83 |    0.05 | 0.7324 |      - |  13.01 KB |        0.63 |
+
 
 ```
 
-The benchmarks were run against both an in-memory SQLite database, and a local PostgreSQL local instance.
+The benchmarks were run against both an in-memory SQLite database, and a local PostgreSQL instance.
 
-As you can see, the performance penalty of using MagiQuery is relatively negligible. All in all, a small price to pay for never having to write more than one query endpoint per entity.
+As you can see, the performance penalty of using MagiQuery is relatively negligible.
 
 ## Examples
 
