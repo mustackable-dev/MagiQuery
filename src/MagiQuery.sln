@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiExample", "..\example
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagiQueryTests", "..\tests\MagiQueryTests.csproj", "{BF0A1B82-017C-46CC-849C-7363249131BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagiQueryBenchmark", "..\benchmark\MagiQueryBenchmark.csproj", "{2C56D099-0EC9-4E3D-88D0-7FC5E6E2EC38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,5 +30,9 @@ Global
 		{BF0A1B82-017C-46CC-849C-7363249131BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF0A1B82-017C-46CC-849C-7363249131BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF0A1B82-017C-46CC-849C-7363249131BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C56D099-0EC9-4E3D-88D0-7FC5E6E2EC38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C56D099-0EC9-4E3D-88D0-7FC5E6E2EC38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C56D099-0EC9-4E3D-88D0-7FC5E6E2EC38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C56D099-0EC9-4E3D-88D0-7FC5E6E2EC38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

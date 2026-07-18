@@ -19,8 +19,13 @@
     * [Override DateTimeKind](#override-datetimekind)
     * [Specifying `BindingFlags` for Property Matching](#specifying-bindingflags-for-property-matching)
     * [Configuring `StringComparison` per Query](#configuring-stringcomparison-per-query)
-  * [Override CultureInfo and Exact Parse Format](#override-cultureinfo-and-exact-parse-format)
+    * [Override CultureInfo and Exact Parse Format](#override-cultureinfo-and-exact-parse-format)
     * [Extended Capabilities for `Runtime` IQueryables](#extended-capabilities-for-runtime-iqueryables)
+    * [Disabling Cache `BindingFlags` Filter](#disabling-cache-bindingflags-filter)
+  * [Caching](#caching)
+  * [Benchmark](#benchmark)
+    * [[MagiCache] Performance Gain](#magicache-performance-gain)
+    * [Result Fetch Benchmark](#result-fetch-benchmark)
   * [Examples](#examples)
     * [Single Filter](#single-filter)
     * [Multiple Filters with AND operator](#multiple-filters-with-and-operator)
@@ -46,50 +51,46 @@ The idea is simple - you write it once, and it should be able to handle any scen
 
 ## Quick Start
 
+Here is an example of how to use `MagiQuery` in a minimal WebAPI.
+
 1. Add the NuGet package to your project:
 
+   ```
+    dotnet add package MagiQuery
+   ```
 
-    ```dotnet add package MagiQuery```
+2. Get a reference to an IQueryable (from a DbContext or somewhere else) that holds the data that you would like to expose for generic filtering and sorting. 
 
-2. Get a reference to an IQueryable (be it from a DbContext or somewhere else) and use the ```ApplyQuery``` extension method like this:
+   Then use the ```ApplyQuery``` extension method like this:
 
     ```csharp
-    [Route("Goblins")]
-    public class QueryController(TestDbContext context) : ControllerBase
-    {
-        [HttpPost("Query")]
-        [ProducesResponseType<IEnumerable<Goblin>>(StatusCodes.Status200OK)]
-        public IActionResult QueryGoblins([FromBody] QueryRequest request)
-        {
-            var goblinsQuery = context.Goblins.ApplyQuery(request);
-            return Ok(goblinsQuery.ToArray());
-        }
-    }
+    app
+        .MapPost(
+            "Goblins/Query",
+            async (QueryRequest request, TestDbContext context) =>
+            {
+                var goblinsQuery = context.Goblins.ApplyQuery(request);
+                return Results.Ok(await goblinsQuery.ToArrayAsync());
+            })
+        .Produces<Goblin[]>();
     ```
-
-    ... or simply use the utility extension method ```GetPagedResponse``` to return a result with pagination like this:
-
+    ... or simply use the utility extension method ```GetPagedResponseAsync``` to return a result with pagination like this:
     ```csharp
-    [Route("Goblins")]
-    public class QueryController(TestDbContext context) : ControllerBase
-    {
-        [HttpPost("Query")]
-        [ProducesResponseType<QueryPagedResponse<Goblin>>(StatusCodes.Status200OK)]
-        public IActionResult QueryGoblins([FromBody] QueryPagedRequest request)
-            => Ok(context.Goblins.GetPagedResponse(request));
-    }
+    app
+        .MapPost(
+            "Goblins/Query",
+            async (QueryRequestPaged request, TestDbContext context)
+                => Results.Ok(await context.Goblins.GetPagedResponseAsync(request)))
+        .Produces<QueryResponsePaged<Goblin>>();
     ```
 
 3. Optionally, add a `JsonStringEnumConverter` to your serialization options, so you can refer to members of the `FilterOperator` enum by name, rather than by their `int` equivalents:
-
     ```csharp
     builder.Services
-        .AddControllers()
-            .AddJsonOptions(
-                x => x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        .ConfigureHttpJsonOptions(x
+            => x.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     ```
-
-    If you prefer using the `int` equivalents for members of `FilterOperator`, please consult the table [here](#supported-operators).
+   If you prefer using the `int` equivalents for members of `FilterOperator`, please consult the table [here](#supported-operators).
 
 
 4. Finally, hit the `/Goblins/Query` POST endpoint with a payload like this one:
@@ -111,10 +112,11 @@ The idea is simple - you write it once, and it should be able to handle any scen
     }
     ```
 
-    ... and you will get a `Goblin` collection that consist only of goblins, whose names start with `Wiz`, and who were born after October 1st, 1010.  
+   ... and you will get a `Goblin` collection that consist only of goblins, whose names start with `Wiz`, and who were born after October 1st, 1010.
 
 
-We have provided a testing playground project [WebApiExample](https://github.com/mustackable-dev/MagiQuery/tree/main/example) in this repository, where you can experiment with MagiQuery and get a feel for how it works and what it can do for you.
+
+You will find a standalone, testing playground project [WebApiExample](https://github.com/mustackable-dev/MagiQuery/tree/main/example) in this repository, where you can experiment with MagiQuery and get a feel for how it works and what it can do for you.
 
 It is preloaded with test data and uses an in-memory SQLite database. It has a Swagger implementation loaded with several examples of `QueryRequest` payloads.
 
@@ -443,7 +445,7 @@ The `StringComparisonType` property allows you to specify the `StringComparison`
 - StringComparison.CurrentCultureIgnoreCase
 ```
 
-## Override CultureInfo and Exact Parse Format
+### Override CultureInfo and Exact Parse Format
 
 MagiQuery also offers the option to provide an override `CultureInfo` code and an exact parse format to ensure the string `value` you provide for a filter is parsed correctly by the .Net application.
 
@@ -518,25 +520,76 @@ Which will return all entries where the month name ends in "er" and the first di
 
 🔴 **IMPORTANT** You cannot do this directly with a remote [data provider](#supported-data-providers) like a database.
 
-If you still want the same functionality with a database, you will first need to query the database to load all relevant entities into a collection in the memory, and then cast the collection as an IQueryable, before applying the `QueryRequest`. Like this:
+### Disabling Cache `BindingFlags` Filter
 
-```csharp
-[Route("Goblins")]
-public class QueryController(TestDbContext context) : ControllerBase
-{
-    [HttpPost("Query")]
-    [ProducesResponseType<QueryResponsePaged<Goblin>>(StatusCodes.Status200OK)]
-    public IActionResult QueryGoblins([FromBody] QueryRequestPaged request)
-    {
-        var goblins = context.Goblins.ToArray();
-        return Ok(goblins.AsQueryable().GetPagedResponse(request));
-    }
-}
+When you are using [Caching](#caching) via the `[MagiCache]` attribute, MagiQuery will only retrieve matching cached structure data, if there is equality between 
+the `PropertyBindingFlags` defined in your query's `QueryBuildOption` and the `PropertyBindingFlags` value defined in your `[MagiCache]` attribute flag (which triggered the cache generation).
+
+Naturally, this is the case due to security reasons, as the goal is to prevent accidental leaks of hidden properties.
+
+You can explicitly disable this filtering by setting `DisableCacheBindingFlagsFilter` in `QueryBuildOptions` to `true`. Use with caution.
+
+## Caching
+
+🔴 **IMPORTANT** This feature is available from version 1.0.1 onward only.
+
+If you want to squeeze every bit of performance from your queries, you can use the `[MagiCached]` attribute on an entity model class definition to cache its structure at runtime and reduce reflection calls to a minimum.
+
+There are two parameters to the `[MagiCached]` attribute:
+
+- **Depth Level** - determines how deep the structure caching of an entity should go. At level 1, only the structure (type data) for the entity's immediate properties will be cached. At level 2, not only the entity's immediate properties will be considered, but also the sub-properties of the entity's immediate class properties. Similarly, level 3 goes even further down the structure tree, and so on and so on. The value range for depth is 1 to 100.
+
+
+- **Property Binding Flags** - determines the `BindingFlags` used when enumerating properties for caching. Please note that in order for your query to take advantage of the cache, the `BindingFlags` specified here should match the ones in `PropertyBindingFlags` in `QueryBuildOptions`, unless BindingFlags filtering is [explicitly disabled](#disabling-cache-bindingflags-filter).
+
+Using this feature will reduce the time it takes to generate the query expression by about 7% (see more details in the [Benchmark](#benchmark) section).
+
+However, please keep in mind that this is not a magic bullet. In a real production setup connected to a database, the bottlenecks are usually quite more significant elsewhere (for example, your choice of using an ORM or not).
+
+## Benchmark
+
+A standalone [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) benchmark suite is available in the repo.
+
+The suite uses a data set of 30 entries, against which we run the [Multiple Filters with Complex Logic](#multiple-filters-with-complex-logic) query.
+
+All benchmark results in this README.MD were ran on .NET SDK 10.0.109, 12th Gen Intel Core i9-12900 machine running on EndeavourOS.
+
+### [MagiCache] Performance Gain
+
+Here is the benchmarking of using the `[MagiCache]` attribute as opposed to the default setup without cache:
+
+```
+| Method              | Mean     | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|-------------------- |---------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
+| QueryBuild          | 3.417 us | 0.0598 us | 0.0640 us |  1.00 |    0.03 | 0.4425 |   6.82 KB |        1.00 |
+| QueryBuildWithCache | 3.239 us | 0.0331 us | 0.0310 us |  0.95 |    0.02 | 0.4387 |   6.74 KB |        0.99 |
+
+```
+As you can see, there are some gains in speed and also some reductions in allocations.
+
+However, it is advisable to consider the absolute numbers in the context of the end-to-end result fetch workflow benchmark data in the next section, which is more in line with a real-world scenario.
+
+### Result Fetch Benchmark
+
+Here is a benchmark that showcases the performance of MagiQuery parsing and running the test query, and compares it against explicit, static implementations of the same query with EFCore and with Dapper.
+
+```
+| Method    | DatabaseType | Mean      | Error    | StdDev   | Ratio | RatioSD | Gen0   | Gen1   | Allocated | Alloc Ratio |
+|---------- |------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|------------:|
+| EFCore    | Sqlite       |  73.36 us | 0.487 us | 0.456 us |  1.00 |    0.01 | 1.4648 | 0.4883 |  24.91 KB |        1.00 |
+| MagiQuery | Sqlite       |  75.62 us | 0.500 us | 0.444 us |  1.03 |    0.01 | 1.9531 | 0.4883 |  30.03 KB |        1.21 |
+| Dapper    | Sqlite       |  62.50 us | 0.245 us | 0.229 us |  0.85 |    0.01 | 0.8545 |      - |  14.57 KB |        0.58 |
+|           |              |           |          |          |       |         |        |        |           |             |
+| EFCore    | PostgreSql   | 134.00 us | 2.652 us | 6.894 us |  1.00 |    0.07 | 0.9766 |      - |  20.59 KB |        1.00 |
+| MagiQuery | PostgreSql   | 137.56 us | 2.877 us | 8.256 us |  1.03 |    0.08 | 1.4648 |      - |  25.55 KB |        1.24 |
+| Dapper    | PostgreSql   | 111.37 us | 2.180 us | 3.329 us |  0.83 |    0.05 | 0.7324 |      - |  13.01 KB |        0.63 |
+
+
 ```
 
-Note that this approach can be extremely resource-intensive and should be avoided whenever possible.
+The benchmarks were run against both an in-memory SQLite database, and a local PostgreSQL instance.
 
-If you have no other option but to use it, at least try to narrow down the amount of entries you will need to load into memory to minimize the resource drain on each call.
+As you can see, the performance penalty of using MagiQuery is relatively negligible.
 
 ## Examples
 

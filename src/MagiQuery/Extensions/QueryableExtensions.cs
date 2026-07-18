@@ -15,7 +15,7 @@ internal static partial class InternalExtensions
         request.ApplyMapping(options);
         request.ApplyPropertyScreening(options);
         
-        ResolveSourceType(queryable, options);
+        options.ResolveSourceType(queryable);
 
         ITranslator translator = TranslatorFactory.CreateTranslator(options.ProviderType);
         
@@ -73,7 +73,8 @@ internal static partial class InternalExtensions
                 parameterExpression,
                 false,
                 options.PropertyBindingFlags,
-                translator);
+                translator,
+                disableFlagsFilter: options.DisableCacheBindingFlagsFilter);
 
             try
             {
@@ -169,8 +170,10 @@ internal static partial class InternalExtensions
     private static void ApplyPropertyScreening<T>(this QueryRequest request, QueryBuildOptions<T> options)
     {
         PropertySelectors<T>? includedSelectors = options.IncludedProperties?.Invoke(new());
-        bool includedScreening = includedSelectors?.Selectors.Any() ?? false;
-        if (!includedScreening && options.ExcludedProperties is null) return;
+        bool includedScreening = includedSelectors?.Selectors.Count > 0;
+        
+        if (!includedScreening && options.ExcludedProperties is null)
+            return;
         
         IEnumerable<string> propertiesChecklist = includedScreening ?
             includedSelectors!.Selectors.Select(x =>x.ParsePropertyName()):
@@ -181,6 +184,7 @@ internal static partial class InternalExtensions
             FilterDefinition? match = request.Filters.FirstOrDefault(x => includedScreening ?
                 !propertiesChecklist.Contains(x.InternalProperty):
                 propertiesChecklist.Contains(x.InternalProperty));
+            
             if (match is not null)
                 throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, match.Property);
         }
@@ -190,6 +194,7 @@ internal static partial class InternalExtensions
             SortDefinition? match = request.Sorts.FirstOrDefault(x => includedScreening ?
                 !propertiesChecklist.Contains(x.InternalProperty):
                 propertiesChecklist.Contains(x.InternalProperty));
+            
             if (match is not null)
                 throw new QueryBuildException(QueryBuildExceptionType.MissingProperty, match.Property);
         }
@@ -207,7 +212,7 @@ internal static partial class InternalExtensions
         return rawExpression[(rawExpression.IndexOf('.') + 1)..];
     }
 
-    private static void ResolveSourceType<T>(this IQueryable source, QueryBuildOptions<T> options)
+    private static void ResolveSourceType<T>(this QueryBuildOptions<T> options, IQueryable source)
     {
         string providerName = string.Empty;
         if (source is IInfrastructure<DbContext> context)

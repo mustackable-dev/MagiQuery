@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using MagiQuery.Utilities;
 
 namespace MagiQuery.Models;
 
@@ -49,8 +50,7 @@ public class QueryBuildOptions<T>
     /// build. <see href="https://learn.microsoft.com/en-us/dotnet/api/system.reflection.bindingflags">Here</see> you
     /// can read more about <see cref="BindingFlags"/>
     /// </summary>
-    public BindingFlags PropertyBindingFlags { get; init; } =
-        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance;
+    public BindingFlags PropertyBindingFlags { get; init; } = Constants.DefaultPropertyBindingFlags;
     
     
     /// <summary>
@@ -58,5 +58,11 @@ public class QueryBuildOptions<T>
     /// (<see cref="DataProvider.Runtime"/>). Unsupported if you are using a remote source like a database
     /// </summary>
     public StringComparison StringComparisonType { get; init; } = StringComparison.Ordinal;
+
+    /// <summary>
+    /// Flags the query builder to fetch cached structures, even if the cache was generated with binding
+    /// flags different from <see cref="QueryBuildOptions&lt;T&gt;.PropertyBindingFlags"/>.
+    /// </summary>
+    public bool DisableCacheBindingFlagsFilter { get; init; } = false;
     internal DataProvider ProviderType { get;  set; } = DataProvider.Runtime;
 }

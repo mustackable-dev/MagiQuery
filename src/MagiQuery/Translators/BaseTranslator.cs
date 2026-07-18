@@ -124,17 +124,17 @@ internal class BaseTranslator: ITranslator
         {
             member = T switch
             {
-                var t when t == typeof(DateTimeOffset) =>
+                _ when T == typeof(DateTimeOffset) =>
                     Expression.Coalesce(member, Expression.Constant(DateTimeOffset.MinValue)),
-                var t when t == typeof(DateTime) =>
+                _ when T == typeof(DateTime) =>
                     Expression.Coalesce(member, Expression.Constant(DateTime.MinValue)),
-                var t when t == typeof(DateOnly) =>
+                _ when T == typeof(DateOnly) =>
                     Expression.Coalesce(member, Expression.Constant(DateOnly.MinValue)),
-                var t when t == typeof(TimeOnly) =>
+                _ when T == typeof(TimeOnly) =>
                     Expression.Coalesce(member, Expression.Constant(TimeOnly.MinValue)),
-                var t when t == typeof(TimeSpan) =>
+                _ when T == typeof(TimeSpan) =>
                     Expression.Coalesce(member, Expression.Constant(TimeSpan.Zero)),
-                var t when t == typeof(char) =>
+                _ when T == typeof(char) =>
                     Expression.Coalesce(member, Expression.Constant('\0')),
                 _ => 
                     Expression.Call(member, "GetValueOrDefault", [])

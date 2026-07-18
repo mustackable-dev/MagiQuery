@@ -9,215 +9,170 @@ internal static partial class InternalExtensions
         isNullable ? Expression.Constant(value[0], typeof(char?)) : Expression.Constant(value[0], typeof(char));
     private static ConstantExpression? ToSByteConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (sbyte.TryParse(value, culture, out sbyte result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(sbyte?));
-            }
+        if (!sbyte.TryParse(value, culture, out sbyte result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(sbyte?));
 
-            return Expression.Constant(result, typeof(sbyte));
-        }
-        return null;
+        return Expression.Constant(result, typeof(sbyte));
     }
     
     private static ConstantExpression? ToShortConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (short.TryParse(value, culture, out short result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(short?));
-            }
+        if (!short.TryParse(value, culture, out short result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(short?));
 
-            return Expression.Constant(result, typeof(short));
-        }
-        return null;
+        return Expression.Constant(result, typeof(short));
     }
     
     private static ConstantExpression? ToUShortConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (ushort.TryParse(value, culture, out ushort result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(ushort?));
-            }
+        if (!ushort.TryParse(value, culture, out ushort result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(ushort?));
 
-            return Expression.Constant(result, typeof(ushort));
-        }
-        return null;
+        return Expression.Constant(result, typeof(ushort));
     }
     
     private static ConstantExpression? ToByteConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (byte.TryParse(value, culture, out byte result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(byte?));
-            }
+        if (!byte.TryParse(value, culture, out byte result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(byte?));
 
-            return Expression.Constant(result, typeof(byte));
-        }
-        return null;
+        return Expression.Constant(result, typeof(byte));
     }
     
     private static ConstantExpression? ToInt32Constant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (Int32.TryParse(value, culture, out Int32 result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(int?));
-            }
+        if (!Int32.TryParse(value, culture, out Int32 result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(int?));
 
-            return Expression.Constant(result, typeof(int));
-        }
-        return null;
+        return Expression.Constant(result, typeof(int));
     }
     
     private static ConstantExpression? ToUInt32Constant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (uint.TryParse(value, culture, out uint result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(uint?));
-            }
+        if (!uint.TryParse(value, culture, out uint result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(uint?));
 
-            return Expression.Constant(result, typeof(uint));
-        }
-        return null;
+        return Expression.Constant(result, typeof(uint));
     }
     
     private static ConstantExpression? ToInt64Constant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (long.TryParse(value, culture, out long result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(long?));
-            }
+        if (!long.TryParse(value, culture, out long result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(long?));
 
-            return Expression.Constant(result, typeof(long));
-        }
-        return null;
+        return Expression.Constant(result, typeof(long));
     }
     
     private static ConstantExpression? ToUInt64Constant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (ulong.TryParse(value, culture, out ulong result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(ulong?));
-            }
-
-            return Expression.Constant(result, typeof(ulong));
-        }
+        if (!ulong.TryParse(value, culture, out ulong result))
+            return null;
         
-        return null;
+        if (isNullable)
+            return Expression.Constant(result, typeof(ulong?));
+
+        return Expression.Constant(result, typeof(ulong));
+
     }
     
     private static ConstantExpression? ToIntPtrConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (IntPtr.TryParse(value, culture, out IntPtr result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(nint?));
-            }
+        if (!IntPtr.TryParse(value, culture, out IntPtr result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(nint?));
 
-            return Expression.Constant(result, typeof(nint));
-        }
-        return null;
+        return Expression.Constant(result, typeof(nint));
     }
     
     private static ConstantExpression? ToUIntPtrConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (UIntPtr.TryParse(value, culture, out UIntPtr result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(nuint?));
-            }
+        if (!UIntPtr.TryParse(value, culture, out UIntPtr result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(nuint?));
 
-            return Expression.Constant(result, typeof(nuint));
-        }
-        return null;
+        return Expression.Constant(result, typeof(nuint));
     }
     
     private static ConstantExpression? ToFloatConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (float.TryParse(value, culture, out float result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(float?));
-            }
+        if (!float.TryParse(value, culture, out float result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(float?));
 
-            return Expression.Constant(result, typeof(float));
-        }
-        return null;
+        return Expression.Constant(result, typeof(float));
     }
     
     private static ConstantExpression? ToDoubleConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (double.TryParse(value, culture, out double result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(double?));
-            }
+        if (!double.TryParse(value, culture, out double result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(double?));
 
-            return Expression.Constant(result, typeof(double));
-        }
-        return null;
+        return Expression.Constant(result, typeof(double));
     }
     
     private static ConstantExpression? ToDecimalConstant(this string value, CultureInfo culture, bool isNullable = false)
     {
-        if (decimal.TryParse(value, culture, out decimal result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(decimal?));
-            }
+        if (!decimal.TryParse(value, culture, out decimal result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(decimal?));
 
-            return Expression.Constant(result, typeof(decimal));
-        }
-        return null;
+        return Expression.Constant(result, typeof(decimal));
     }
     
     private static ConstantExpression? ToBoolConstant(this string value, bool isNullable = false)
     {
-        if (bool.TryParse(value, out bool result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(bool?));
-            }
+        if (!bool.TryParse(value, out bool result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(bool?));
             
-            return Expression.Constant(result, typeof(bool));
-        }
+        return Expression.Constant(result, typeof(bool));
 
-        return null;
     }
     
     private static ConstantExpression? ToEnumConstant(this string value, Type underlyingType, bool isNullable = false)
     {
-        if (Enum.TryParse(underlyingType, value, true, out object? result))
-        {
-            if (isNullable)
-            {
-                return Expression.Constant(result, typeof(Nullable<>).MakeGenericType(underlyingType));
-            }
+        if (!Enum.TryParse(underlyingType, value, true, out object? result))
+            return null;
+        
+        if (isNullable)
+            return Expression.Constant(result, typeof(Nullable<>).MakeGenericType(underlyingType));
             
-            return Expression.Constant(result, underlyingType);
-        }
+        return Expression.Constant(result, underlyingType);
 
-        return null;
     }
     
     private static ConstantExpression? ToDateTimeConstant(
@@ -229,7 +184,11 @@ internal static partial class InternalExtensions
     {
         Type returnType = isNullable ? typeof(DateTime?) : typeof(DateTime);
         if (exactParseFormat is not null && 
-            DateTime.TryParseExact(value, exactParseFormat, culture, DateTimeStyles.None,
+            DateTime.TryParseExact(
+                value,
+                exactParseFormat,
+                culture,
+                DateTimeStyles.None,
                 out DateTime exactParsedValue))
         {
             if(overrideDateTimeKind is not null)
@@ -238,7 +197,7 @@ internal static partial class InternalExtensions
             return Expression.Constant(exactParsedValue, returnType);
         }
             
-        if(DateTime.TryParse(value, culture, out DateTime parsedValue))
+        if (DateTime.TryParse(value, culture, out DateTime parsedValue))
         {
             if(overrideDateTimeKind is not null)
                 parsedValue = DateTime.SpecifyKind(parsedValue, overrideDateTimeKind.Value);
@@ -256,14 +215,19 @@ internal static partial class InternalExtensions
         bool isNullable = false)
     {
         Type returnType = isNullable ? typeof(DateTimeOffset?) : typeof(DateTimeOffset);
+        
         if (exactParseFormat is not null && 
-            DateTimeOffset.TryParseExact(value, exactParseFormat, culture, DateTimeStyles.None,
+            DateTimeOffset.TryParseExact(
+                value,
+                exactParseFormat,
+                culture,
+                DateTimeStyles.None,
                 out DateTimeOffset exactParsedValue))
         {
             return Expression.Constant(exactParsedValue, returnType);
         }
             
-        if(DateTimeOffset.TryParse(value, culture, out DateTimeOffset parsedValue))
+        if (DateTimeOffset.TryParse(value, culture, out DateTimeOffset parsedValue))
         {
             return Expression.Constant(parsedValue, returnType);
         }
@@ -279,13 +243,17 @@ internal static partial class InternalExtensions
     {
         Type returnType = isNullable ? typeof(DateOnly?) : typeof(DateOnly);
         if (exactParseFormat is not null && 
-            DateOnly.TryParseExact(value, exactParseFormat, culture, DateTimeStyles.None,
+            DateOnly.TryParseExact(
+                value,
+                exactParseFormat,
+                culture,
+                DateTimeStyles.None,
                 out DateOnly exactParsedValue))
         {
             return Expression.Constant(exactParsedValue, returnType);
         }
             
-        if(DateOnly.TryParse(value, culture, out DateOnly parsedValue))
+        if (DateOnly.TryParse(value, culture, out DateOnly parsedValue))
         {
             return Expression.Constant(parsedValue, returnType);
         }
@@ -300,8 +268,13 @@ internal static partial class InternalExtensions
         bool isNullable = false)
     {
         Type returnType = isNullable ? typeof(TimeSpan?) : typeof(TimeSpan);
+        
         if (exactParseFormat is not null && 
-            TimeSpan.TryParseExact(value, exactParseFormat, culture, TimeSpanStyles.None,
+            TimeSpan.TryParseExact(
+                value,
+                exactParseFormat,
+                culture,
+                TimeSpanStyles.None,
                 out TimeSpan exactParsedValue))
         {
             return Expression.Constant(exactParsedValue, returnType);
@@ -323,13 +296,17 @@ internal static partial class InternalExtensions
     {
         Type returnType = isNullable ? typeof(TimeOnly?) : typeof(TimeOnly);
         if (exactParseFormat is not null && 
-            TimeOnly.TryParseExact(value, exactParseFormat, culture, DateTimeStyles.None,
+            TimeOnly.TryParseExact(
+                value,
+                exactParseFormat,
+                culture,
+                DateTimeStyles.None,
                 out TimeOnly exactParsedValue))
         {
             return Expression.Constant(exactParsedValue, returnType);
         }
             
-        if(TimeOnly.TryParse(value, culture, out TimeOnly parsedValue))
+        if (TimeOnly.TryParse(value, culture, out TimeOnly parsedValue))
         {
             return Expression.Constant(parsedValue, returnType);
         }
