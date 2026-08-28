@@ -22,6 +22,7 @@
     * [Override CultureInfo and Exact Parse Format](#override-cultureinfo-and-exact-parse-format)
     * [Extended Capabilities for `Runtime` IQueryables](#extended-capabilities-for-runtime-iqueryables)
     * [Disabling Cache `BindingFlags` Filter](#disabling-cache-bindingflags-filter)
+    * [Overriding `DataProvider`](#overriding-dataprovider)
   * [Caching](#caching)
   * [Benchmark](#benchmark)
     * [[MagiCache] Performance Gain](#magicache-performance-gain)
@@ -528,6 +529,28 @@ the `PropertyBindingFlags` defined in your query's `QueryBuildOption` and the `P
 Naturally, this is the case due to security reasons, as the goal is to prevent accidental leaks of hidden properties.
 
 You can explicitly disable this filtering by setting `DisableCacheBindingFlagsFilter` in `QueryBuildOptions` to `true`. Use with caution.
+
+### Overriding `DataProvider`
+
+By default, MagiQuery attempts to automatically detect the data provider type of the underlying data source of an `IQueryable`. However, this only works when the `IQueryable` is directly tied to a data source, and not to another `IQueryable`.
+
+This means that if you do something like this:
+
+```csharp
+dbContext.Goblins
+    .Where(x => x.Id > 1) // Chaining .Where creates a derived IQueryable
+    .ApplyQuery(request)// Automatic DataProvider detection fails here
+    .ToListAsync()
+    
+```
+
+MagiQuery will not be able to determine the correct `DataProvider`, because the metadata necessary for automated detection is wiped the moment you apply a `.Where` clause. Adding a `.Where` clause generates a derived `IQueryable`, thereby breaking the link to the underlying data source.
+
+In this case, you need to specify `OverrideProviderType` explicitly, so that MagiQuery knows which dialect to use when generating LINQ queries.
+
+From version 1.0.2, MagiQuery will throw an error if it detects an underlying EF-managed data source for a query without an explicitly specified `OverrideProviderType` in `QueryBuildOptions`.
+
+You can see a list of supported data providers [here](#supported-data-providers).
 
 ## Caching
 

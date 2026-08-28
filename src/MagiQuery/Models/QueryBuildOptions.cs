@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MagiQuery.Utilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MagiQuery.Models;
 
@@ -64,5 +65,17 @@ public class QueryBuildOptions<T>
     /// flags different from <see cref="QueryBuildOptions&lt;T&gt;.PropertyBindingFlags"/>.
     /// </summary>
     public bool DisableCacheBindingFlagsFilter { get; init; } = false;
+
+    /// <summary>
+    /// Allows you to specify the <see cref="DataProvider"/> for an IQueryable, instead of relying on
+    /// MagiQuery's internal detection logic.
+    /// </summary>
+    /// <remarks>You need to use this option, if you are applying the
+    /// <see cref="QueryRequest" /> to a composed query instead of directly to a <see cref="DbSet&lt;TEntity&gt;" />.
+    /// If you skip setting this option, MagiQuery will not be able to correctly determine the underlying provider.
+    /// It will default to <see cref="DataProvider.Runtime" />, which may cause some filters and sorts to fail
+    /// if the underlying provider is actually a database.
+    /// </remarks>
+    public DataProvider? OverrideProviderType { get; init; }
     internal DataProvider ProviderType { get;  set; } = DataProvider.Runtime;
 }
