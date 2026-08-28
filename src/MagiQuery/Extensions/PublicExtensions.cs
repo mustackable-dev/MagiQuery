@@ -70,7 +70,7 @@ public static class PublicExtensions
         QueryRequestPaged request,
         QueryBuildOptions<T> buildOptions) where T: class
         => QueryResponsePaged<T>.Create(request, source.BuildQuery(request, buildOptions));
-    
+
     /// <summary>
     /// An async utility extension that runs ApplyQuery with standard <see cref="QueryBuildOptions&lt;T&gt;"/> on a given IQueryable,
     /// executes the query and binds the result to a paged response ready to be served back to the client of an
@@ -80,11 +80,13 @@ public static class PublicExtensions
     /// <param name="source">The IQueryable to apply the request to</param>
     /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
     /// size and 1-based page indexing</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete</param>
     /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
     public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(
         this IQueryable<T> source,
-        QueryRequestPaged request) where T: class
-        => source.GetPagedResponseAsync(request, new());
+        QueryRequestPaged request,
+        CancellationToken cancellationToken = default) where T: class
+        => source.GetPagedResponseAsync(request, new(), cancellationToken);
 
     /// <summary>
     /// An async utility extension that runs ApplyQuery with an instance of <see cref="QueryBuildOptions&lt;T&gt;"/> on a given
@@ -96,13 +98,15 @@ public static class PublicExtensions
     /// <param name="request">A <see cref="QueryRequest"/>-derived request with additional parameters for page
     /// size and 1-based page indexing</param>
     /// <param name="buildOptions">The query build options to use when applying the request to the source</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete</param>
     /// <returns>A utility class instance you can return to the client of a WebAPI</returns>
     public static Task<QueryResponsePaged<T>> GetPagedResponseAsync<T>(
         this IQueryable<T> source,
         QueryRequestPaged request,
-        QueryBuildOptions<T> buildOptions) where T: class
+        QueryBuildOptions<T> buildOptions,
+        CancellationToken cancellationToken = default) where T: class
     {
         IQueryable<T> data = source.BuildQuery(request, buildOptions);
-        return QueryResponsePaged<T>.CreateAsync(request, data, buildOptions.ProviderType);
+        return QueryResponsePaged<T>.CreateAsync(request, data, buildOptions.ProviderType, cancellationToken);
     }
 }

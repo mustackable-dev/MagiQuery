@@ -24,5 +24,5 @@ public record QueryRequestPaged : QueryRequest
     /// Prevents an extra backend count query when paginating through results.
     /// Set to <see langword="true"/>, if you have already fetched the totals in an initial request.
     /// </summary>
-    public bool SkipTotalCalculation { get; set; }
+    public bool? SkipTotalCalculation { get; set; }
 }

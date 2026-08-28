@@ -47,8 +47,8 @@ public record QueryResponsePaged<T> where T : class
     /// </summary>
     internal static QueryResponsePaged<T> Create(QueryRequestPaged request, IQueryable<T> result)
     {
-        int totalItems = request.SkipTotalCalculation ? 0 : result.Count();
-        int totalPages = request.SkipTotalCalculation ? 0 : (int)Math.Ceiling((double)totalItems / request.PageSize);
+        int totalItems = request.SkipTotalCalculation ?? false ? 0 : result.Count();
+        int totalPages = request.SkipTotalCalculation ?? false ? 0 : (int)Math.Ceiling((double)totalItems / request.PageSize);
 
         return new()
         {
@@ -68,17 +68,20 @@ public record QueryResponsePaged<T> where T : class
     internal static async Task<QueryResponsePaged<T>> CreateAsync(
         QueryRequestPaged request,
         IQueryable<T> result,
-        DataProvider provider)
+        DataProvider provider,
+        CancellationToken cancellationToken = default)
     {
-        int totalItems = request.SkipTotalCalculation
+        int totalItems = request.SkipTotalCalculation ?? false
             ? 0
             : provider == DataProvider.Runtime
                 ? result.Count()
                 : await result
                     .AsNoTracking()
-                    .CountAsync();
+                    .CountAsync(cancellationToken);
 
-        int totalPages = request.SkipTotalCalculation ? 0 : (int)Math.Ceiling((double)totalItems / request.PageSize);
+        int totalPages = request.SkipTotalCalculation ?? false
+            ? 0
+            : (int)Math.Ceiling((double)totalItems / request.PageSize);
 
         IQueryable<T> dataSlice = result.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize);
 
@@ -89,7 +92,7 @@ public record QueryResponsePaged<T> where T : class
                     ? dataSlice.ToList()
                     : await dataSlice
                         .AsNoTracking()
-                        .ToListAsync(),
+                        .ToListAsync(cancellationToken),
             Page = request.Page,
             PageSize = request.PageSize,
             TotalItems = totalItems,
