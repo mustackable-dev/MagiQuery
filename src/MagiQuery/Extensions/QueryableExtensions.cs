@@ -5,6 +5,7 @@ using MagiQuery.Factories;
 using MagiQuery.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace MagiQuery.Extensions;
 
@@ -15,7 +16,7 @@ internal static partial class InternalExtensions
         request.ApplyMapping(options);
         request.ApplyPropertyScreening(options);
         
-        options.ResolveSourceType(queryable);
+        options.ProviderType = options.OverrideProviderType ?? options.ResolveSourceType(queryable);
 
         ITranslator translator = TranslatorFactory.CreateTranslator(options.ProviderType);
         
@@ -212,15 +213,20 @@ internal static partial class InternalExtensions
         return rawExpression[(rawExpression.IndexOf('.') + 1)..];
     }
 
-    private static void ResolveSourceType<T>(this QueryBuildOptions<T> options, IQueryable source)
+    private static DataProvider ResolveSourceType<T>(this QueryBuildOptions<T> options, IQueryable source)
     {
         string providerName = string.Empty;
         if (source is IInfrastructure<DbContext> context)
         {
             providerName = context.Instance.Database.ProviderName ?? string.Empty;
         }
+        else
+        {
+            if (source.Provider is EntityQueryProvider)
+                throw new QueryBuildException(QueryBuildExceptionType.MissingDataProviderForComposedQueryError);
+        }
 
-        options.ProviderType = providerName switch
+        return providerName switch
         {
             "Microsoft.EntityFrameworkCore.InMemory" => DataProvider.InMemory,
             "Microsoft.EntityFrameworkCore.Sqlite" => DataProvider.Sqlite,

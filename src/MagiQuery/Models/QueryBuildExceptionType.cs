@@ -41,5 +41,11 @@ public enum QueryBuildExceptionType
     /// Thrown when MagiQuery failed to generate an <see cref="System.Linq.Expressions.Expression"/> for a
     /// <see cref="SortDefinition"/> in <see cref="QueryRequest.Sorts"/>
     /// </summary>
-    SortExpressionGenerationError
+    SortExpressionGenerationError,
+    /// <summary>
+    /// Thrown when you attempt to apply a <see cref="QueryRequest" /> on a composed query that has
+    /// an EF-managed underlying base data source, but no explicitly specified <see cref="DataProvider"/>
+    /// via <see cref="QueryBuildOptions&lt;T&gt;.OverrideProviderType" />
+    /// </summary>
+    MissingDataProviderForComposedQueryError
 }
