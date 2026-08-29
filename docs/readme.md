@@ -546,7 +546,9 @@ dbContext.Goblins
 
 MagiQuery will not be able to determine the correct `DataProvider`, because the metadata necessary for automated detection is wiped the moment you apply a `.Where` clause. Adding a `.Where` clause generates a derived `IQueryable`, thereby breaking the link to the underlying data source.
 
-In this case, you need to specify `OverrideProviderType` explicitly, so that MagiQuery knows which dialect to use when generating LINQ queries.
+In this case, you need to specify `OverrideProviderType` explicitly in `QueryBuildOptions`, so that MagiQuery knows which dialect to use when generating LINQ queries.
+
+`.ApplyQuery`, `.GetPagedResponse` and `.GetPagedResponseAsync` also offer overloads that accept a `DataProvider` directly, instead of having to provide it via typed `QueryBuildOptions<T>` instances.
 
 From version 1.0.2, MagiQuery will throw an error if it detects an underlying EF-managed data source for a query without an explicitly specified `OverrideProviderType` in `QueryBuildOptions`.
 
