@@ -369,10 +369,81 @@ public abstract class BuildOptionsTests
         catch (QueryBuildException ex)
         {
             //Assert
-            Assert.True(ex.ExceptionType == QueryBuildExceptionType.MissingProperty);
+            Assert.Equal(QueryBuildExceptionType.MissingProperty, ex.ExceptionType);
             return;
         }
         
         Assert.Fail();
+    }
+
+    [Fact]
+    public void ApplyQuery_OnComplexQuery_ShouldThrowWithoutOverrideProviderType()
+    {
+        // Arrange
+        QueryRequest request = new()
+        {
+            Sorts =
+            [
+                new()
+                {
+                    Property = "Name",
+                }
+            ]
+        };
+        
+        // Act
+        
+        Assert.SkipWhen(Fixture.Provider == DataProvider.Runtime, "The Runtime data provider handles this case " +
+                                                                  "without errors, this test is targeted at complex " +
+                                                                  "queries against IQueryables with database-backed " +
+                                                                  "base sources.");
+        
+        try
+        {
+            Fixture.SampleData.Where(x=>x.Id>0).ApplyQuery(request);
+        }
+        catch (QueryBuildException ex)
+        {
+            //Assert
+            Assert.Equal(QueryBuildExceptionType.MissingDataProviderForComposedQueryError, ex.ExceptionType);
+            return;
+        }
+        
+        Assert.Fail();
+    }
+
+    [Fact]
+    public void ApplyQuery_OnComplexQuery_ShouldPassWithSpecifiedOverrideProviderType()
+    {
+        // Arrange
+        QueryRequest request = new()
+        {
+            Sorts =
+            [
+                new()
+                {
+                    Property = "Name",
+                }
+            ]
+        };
+        
+        // Act
+        
+        Assert.SkipWhen(Fixture.Provider == DataProvider.Runtime, "The Runtime data provider handles this case " +
+                                                                  "without errors, this test is targeted at complex " +
+                                                                  "queries against IQueryables with database-backed " +
+                                                                  "base sources.");
+        
+        try
+        {
+            Fixture.SampleData.Where(x=>x.Id>0).ApplyQuery(request, Fixture.Provider);
+        }
+        catch
+        {
+            //Assert
+            Assert.Fail();
+        }
+        
+        Assert.True(true);
     }
 }
